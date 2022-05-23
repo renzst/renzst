@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Styling</title>
+
+    <style>
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: black;
+        }
+
+        .container {
+            width: 90%;
+            margin: auto;
+            background-color: white;
+            padding: 1em;
+        }
+
+        @media screen and (min-width: 48em) {
+            .container {
+                width: 48em;
+            }
+        }
+
+        header img {
+            display: block;
+            max-width: 150px;
+            margin: auto;
+        }
+        
+        fieldset {
+            margin-bottom: 2em;
+            background-color: #eee;
+        }
+
+        fieldset:hover {
+            transition: background-color;
+            transition-duration: 0.2s;
+            background-color: white;;
+        }
+
+        legend {
+            font-weight: bold;
+            font-size: larger;
+        }
+
+        label {
+            font-size: larger;
+        }
+        input {
+            padding: 1em 1em;
+            border: none;
+            border-bottom: 2px solid black;
+            font-size: larger;
+            max-width: 90%;
+            background-color: none;
+        }
+
+        input:focus {
+            outline: none;
+            border-width: 4px;
+        }
+
+        input:invalid {
+            background-color: pink;
+        }
+
+        input:required {
+            border-bottom: 2px red solid;
+        }
+
+        input:valid {
+            border-bottom: 2px solid green;
+        }
+
+        .label-input {
+            margin-bottom: 1em;
+            display:flex;
+            flex-direction: column;
+        }
+
+        .req > label::after {
+            content: " *";
+            color: red;
+            font-weight: bold;
+        }
+
+        .submit {
+            width: 100%;
+            text-align: center;
+        }
+
+        button {
+            margin: auto auto;
+            background-color: black;
+            color: white;
+            border: 0;
+            border-radius: 0;
+            width: 90%;
+            font-size: larger;
+            padding: 1em;
+        }
+
+        button:hover {
+            background-color: darkorchid;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img id=logo src="logo.png" alt="Free Grocery Store logo">
+        </header>
+        <main>
+            <h1>Sign up for Free Grocery Store!</h1>
+            <p>Please enter your information below:</p>
+            <form action="http://httpbin.org/post" method="post">
+                <fieldset>
+                    <legend>Contact information</legend>
+                    <div class="label-input req">
+                        <label for="name">Full name</label>
+                        <input id="name" name="name" type="text" required>
+                    </div>
+                    <div class="label-input req">
+                        <label for=phone>Phone number</label>
+                        <input id="phone" name="phone" type="tel" required placeholder="5554443333">
+                    </div>
+                    <div class="label-input">
+                        <label for="email">Email</label>
+                        <input type="email" name="email" id="email" placeholder="example@example.com">
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Location</legend>
+                    <div class="label-input req">
+                        <label for="street">Street address</span></label>
+                        <input type="text" id="street" name="street" pattern="[0-9A-Za-z ]*" required>
+                    </div>
+                    <div class="label-input">
+                        <label for="unit">Unit or Apartment Number</label>
+                        <input type="text" id="unit" name="unit" pattern="[0-9A-Za-z ]*">
+                    </div>
+                    <div class="label-input req">
+                        <label for="zip">ZIP Code</span></label>
+                        <input type="text" id="zip" name="zip" required pattern="326[0-9]{2}">
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Food preferences</legend>
+                    <div class="label-input req">
+                        <label for="size">Household size</label>
+                        <input type="number" id="size" name="size" required min="1" max="20">
+                    </div>
+                    <div class="label-input">
+                        <label for="restrictions">Restrictions</label>
+                        <p class="input-desc">Anything you can't eat, don't eat, or any restrictions involving preparation or storage</p>
+                        <input type="text" id="restrictions" name="restrictions" pattern="[A-Za-z0-9 .,;:/]{0,255}">
+                    </div>
+                    <div class="label-input req">
+                        <label for="preferences">Preferences</label>
+                        <input type="text" id="preferences" name="preferences" pattern="[A-Za-z0-9 .,;:/]{1,255}">
+                    </div>
+                </fieldset>
+                <div class="submit">
+                    <button type="submit">Submit form</button>
+                </div>
+            </form>
+        </main>
+    </div>
+</body>
+</html>

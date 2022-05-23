@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forms</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            font-size: 125%;
+        }
+        main {
+            width: 80%;
+            max-width: 1000px;
+            margin: auto;
+        }
+        form > * {
+            display: block;
+            width: 50%;
+        }
+
+        fieldset > *{
+            display: block;
+        }
+
+        input, textarea, select {
+            margin-bottom: 1.5em;
+        }
+
+        input:invalid {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <header></header>
+    <main>
+        <section>
+            <h1>Forms Examples</h1>
+            <form action="http://httpbin.org/post" method="post">
+                <input type="search" name="search" id="search" aria-label="web-search" placeholder="Search the web...">
+                <button type="submit">Search</button>
+            </form>
+            <form action="http://httpbin.org/post" method="post">
+                <fieldset>
+                    <legend>Account information</legend>
+                    <label for="user">Username</label>
+                    <input type="text" required="required" name="user" id="user" placeholder="anonymous" pattern="[a-z0-9]{8,20}">
+                    <label for="email">Email</label>
+                    <input type="email" required="required" name="email" id="email">
+                    <label for="password">Password</label>
+                    <input type="password" required="required" name="password" id="password">
+                    <label for="tele">Telephone number</label>
+                    <input type="tel" name="tele" id="tele" placeholder="5552225555" pattern="[0-9]{10}">
+                </fieldset>
+                <fieldset>
+                    <legend>Demographics</legend>
+                    <p>What are your pronouns?</p>
+                    <label for="they">they/them</label>
+                    <input type="checkbox" name="pronouns" id="they" value="they">
+                    <label for="she">she/her</label>
+                    <input type="checkbox" name="pronouns" id="she" value="she">
+                    <label for="he">he/him</label>
+                    <input type="checkbox" name="pronouns" id="he" value="he">
+                    <label for="custom">Other pronouns:</label>
+                    <input type="text" name="pronouns" id="custom">
+                    <label for="age">Age</label>
+                    <input type="number" name="age" id="age">
+                    <label for="birthday">Birthday</label>
+                    <input type="date" name="birthday" id="birthday">
+                </fieldset>
+                <label for="icecream">Favorite Ice Cream</label>         
+                <select name="Flavor" id="icecream">
+                    <optgroup label="Standard">
+                        <option value="vanilla">Vanilla</option>
+                        <option value="chocolate">Chocolate</option>
+                        <option value="strawberry">Strawberry</option>
+                    </optgroup>
+                    <optgroup label="Good Flavors">
+                        <option value="ube">Ube</option>
+                        <option value="mango">Mangga</option>
+                        <option value="jackfruit">Langka</option>
+                    </optgroup>
+                </select>
+                <label for="myFruit">What's your favorite fruit?</label>
+                <input type="text" name="myFruit" id="myFruit" list="mySuggestion">
+                <datalist id="mySuggestion">
+                    <option>Apple</option>
+                    <option>Banana</option>
+                    <option>Blackberry</option>
+                    <option>Blueberry</option>
+                    <option>Lemon</option>
+                    <option>Lychee</option>
+                    <option>Peach</option>
+                    <option>Pear</option>
+                </datalist>
+                <p>Do you wish to receive newsletters?</p>
+                <input type="radio" name="news" id="y">
+                <label for="y">I consent</label>
+                <input type="radio" name="news" id="n">
+                <label for="n">I do not consent</label>
+                <textarea name="comments" id="comments" cols="30" rows="10">Write comments here...</textarea>
+                <button type="submit">Submit form</button>
+                <button type="reset">Reset form</button>
+            </form>
+            <h1>Other field options</h1>
+            <ul>
+                <li>URL</li>
+                <li>Pattern enforcement</li>
+                <li>Number</li>
+                <li>range: min, max, step</li>
+                <li>Datetime-local, month, time, week, min/max/step</li>
+                <li>Color</li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ul>
+        </section>
+        
+    </main>
+    <footer></footer>
+</body>
+</html>
