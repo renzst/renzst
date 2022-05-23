@@ -1,16 +1,22 @@
-### Hi there 👋
+# Wurlcurm toer myr kitchern
 
-<!--
-**renzst/renzst** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+Hi! My name is Renz and I use they/them pronouns. I'm currently a student of the University of Florida, studying GIS with anticipation of studying a Master's of Urban Planning.
 
-Here are some ideas to get you started:
+I do a lot of work in food access - coding is just my pet project. Watch me fuck up immensely and constantly over and over again on my coding projects.
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+Some languages/frameworks/software I work with or hope* to work with:
+  - R
+  - Python
+  - GIS
+      - ArcGIS
+      - QGIS
+      - OpenLayers*
+      - GeoServer*
+  - Front-end
+      - HTML
+      - CSS (I really fuck with grids, looking forward to subgrids)
+      - Javascript*
+  - Back-end
+      - Javascript*
+      - SQL (I personally like Postgres)
+      - React*
