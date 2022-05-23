@@ -20,3 +20,7 @@ Some languages/frameworks/software I work with or hope* to work with:
       - Javascript*
       - SQL (I personally like Postgres)
       - React*
+
+## This repository
+
+This repo is for my purely educational work. Other repos such as renzst.com have files intended for reading or distribution.
