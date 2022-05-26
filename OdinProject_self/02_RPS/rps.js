@@ -30,26 +30,40 @@ function validatePlayerInput(playerInput) {
 }
 
 function playRound(computerSel, playerSel) {
+    const tieString = "It's a tie!";
+    const compWin = "The computer won this round!";
+    const playerWin = "You won this round!";
+
+    const resultList = document.querySelector("#results");
+
     let outcome = computerSel - playerSel;
     outcome = outcome < 0 ? outcome + 3 : outcome;
+
+    let strToLog;
     switch (outcome) {
-        case 0: 
-            console.log("It's a tie!");
+        case 0:
+            strToLog = tieString;
             break;
         case 1: 
-            console.log("The computer won this round!");
+            strToLog = compWin;
             break;
         case 2: 
-            console.log("You won this round!");
+            strToLog = playerWin;
             break;
         default:
             console.log("Uh oh, something went wrong.")
             return null;
     }
+    let resultItem = document.createElement("li");
+    resultItem.textContent = strToLog;
+
+    console.log(strToLog);
+    resultList.appendChild(resultItem);
+
     return outcome;
 }
 
-function declareWinner(results) {
+/* function declareWinner(results) {
     let computerWins = 0;
     let playerWins = 0;
     for (let result of results) {
@@ -68,33 +82,111 @@ function declareWinner(results) {
         playerWins > computerWins ? 2 :
             computerWins > playerWins ? 1 : 0
     )
+} */
+
+function updateWins(playerWins, computerWins) {
+    const player = document.querySelector("#player");
+    const computer = document.querySelector("#computer");
+
+    player.textContent = "Player wins: " + playerWins;
+    computer.textContent = "Computer wins: " + computerWins;
+
 }
 
-function game(n) {
-    results = []
-    for (let i = 0; i < n; i++) {
-        console.log("ROUND "+ (i+1))
-        let playerSel;
-        while (!((playerSel === 0) | playerSel)) {
-            let playerInput = prompt("Enter one of 'rock', 'paper', or 'scissors'");
-            playerSel = validatePlayerInput(playerInput);
-        }
+function game() {
+    let playerWins = 0;
+    let computerWins = 0;
 
-        let computerSel = computerSelect();
-        console.log("The computer chose "+displayChoice(computerSel));
+    let userRock = document.querySelector("#rock");
+    let userScis = document.querySelector("#scissors");
+    let userPape = document.querySelector("#paper");
 
-        results.push(playRound(computerSel, playerSel));
-        
+    let winner;
+
+    let updateWinCount = (outcome) => {
+        if (outcome == 1) {computerWins++};
+        if (outcome == 2) {playerWins++};
+    };
+
+    let updateEvent = choice => {
+        let outcome = playRound(choice, computerSelect());
+        updateWinCount(outcome);
+        updateWins(playerWins, computerWins);
+        if (!winner & playerWins == 5) {
+            winner = "Player";
+        };
+        if (!winner & computerWins == 5) {
+            winner = "Computer";
+        };
+        if (winner) {
+            const winDiv = document.querySelector("#hasWon");
+            winDiv.textContent = winner + " has won!";
+        };
     }
-    const winner = declareWinner(results);
-    winner == 2 ?
-        console.log("You win!") :
-        winner == 1 ?
-            console.log("Computer wins!") :
-            console.log("It's a tie!");
+
+    userRock.addEventListener('click', () => {
+        let outcome = playRound(2, computerSelect());
+        updateWinCount(outcome);
+        updateWins(playerWins, computerWins);
+        if (!winner & playerWins == 5) {
+            winner = "Player";
+        };
+        if (!winner & computerWins == 5) {
+            winner = "Computer";
+        };
+        if (winner) {
+            const winDiv = document.querySelector("#hasWon");
+            winDiv.textContent = winner + " has won!";
+        };
+    }); 
+    userScis.addEventListener('click', () => {
+        let outcome = playRound(1, computerSelect());
+        updateWinCount(outcome);
+        updateWins(playerWins, computerWins);
+        if (!winner & playerWins == 5) {
+            winner = "Player";
+        };
+        if (!winner & computerWins == 5) {
+            winner = "Computer";
+        };
+        if (winner) {
+            const winDiv = document.querySelector("#hasWon");
+            winDiv.textContent = winner + " has won!";
+        };
+    }); 
+    userPape.addEventListener('click', () => {
+        let outcome = playRound(0, computerSelect());
+        updateWinCount(outcome);
+        updateWins(playerWins, computerWins);
+        if (!winner & playerWins == 5) {
+            winner = "Player";
+        };
+        if (!winner & computerWins == 5) {
+            winner = "Computer";
+        };
+        if (winner) {
+            const winDiv = document.querySelector("#hasWon");
+            winDiv.textContent = winner + " has won!";
+        };
+    }); 
 }
 
-game(3);
+game();
+
+/* function game(n) {
+    results = [];
+    console.log("ROUND "+ (i+1));
+    let playerSel;
+    while (!((playerSel === 0) | playerSel)) {
+        let playerInput = prompt("Enter one of 'rock', 'paper', or 'scissors'");
+        playerSel = validatePlayerInput(playerInput);
+    }
+
+    let computerSel = computerSelect();
+    console.log("The computer chose "+displayChoice(computerSel));
+
+    results.push(playRound(computerSel, playerSel));
+} */
 
 
 /*
