@@ -1,0 +1,25 @@
+* {
+    font-family: sans-serif;
+}
+
+:root {
+    --ncell: 1;
+    --width: 960px;
+}
+
+header {
+    margin-bottom: 2em;
+}
+
+.main-container {
+    width: var(--width);
+    margin: auto;
+}
+
+.sketchGrid {
+    display: grid;
+    gap: 0px;
+    outline: 1px solid black;
+    grid-template-columns: repeat(var(--ncell), calc(var(--width)/var(--ncell)));
+    grid-auto-rows: calc(var(--width)/var(--ncell));
+}

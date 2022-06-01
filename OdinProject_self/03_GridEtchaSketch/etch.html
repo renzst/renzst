@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etch-a-Sketch</title>
+    <link rel="stylesheet" href="etch.css">
+</head>
+<body>
+    <div class="main-container">
+        <header>
+            <h1>Etch-a-Sketch kinda but not really</h1>
+            <label for="n-cells">Row/column length</label>
+            <input type="number" min=1 max=100 id="n-cells">
+            <select name="function" id="function">
+                <option value="Standard">Standard</option>
+                <option value="Rainbow">Rainbow</option>
+                <option value="Darken">Darken</option>
+            </select>
+            <button id="cell-submit">Submit</button>
+        </header>
+        <main>
+            <div class="sketchGrid"></div>
+        </main>
+    </div>
+    <script src="etch.js"></script>
+</body>
+</html>
