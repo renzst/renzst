@@ -3,7 +3,7 @@
 }
 
 body {
-    background-color: aqua;
+    background-color: #333;
 }
 
 .container-main {
@@ -15,6 +15,7 @@ body {
 
 #calculator {
     background-color: white;
+    border: 5px solid black;
     border-radius: 0.5em;
     padding: 1em;
     margin: 1em;
@@ -33,7 +34,7 @@ body {
 
 #calculator > button {
     border: none;
-    box-shadow: 1px 1px #ccc;
+    box-shadow: 1px 1px #bbb;
     background-color: #ddd;
 }
 
