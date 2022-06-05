@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renz's Library</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="main-container">
+        <header>
+            <h1>Renz's Library</h1>
+            <button id="addBook">Add a book</button>
+            <div id="bookEntry" class="hidden">
+                <h2>Add a book</h2>
+                <button class="close icon" aria-label="Close form"></button>
+                <div class="formInput">
+                    <label for="title">Book title</label>
+                    <input id="title" type="text">
+                </div>
+                <div class="formInput">
+                    <label for="author">Author(s)</label>
+                    <input id="author" type="text">
+                </div>
+                <div class="formInput">
+                    <label for="pages">Number of pages</label>
+                    <input id="pages" type="number">
+                </div>
+                <div class="formInput">
+                    <label for="hasRead">Have you read this?</label>
+                    <input id="hasRead" type="checkbox">
+                </div>
+                <div class="submit">
+                    <button id="bookEntrySubmit" class="submit">Submit</button>
+                </div>
+            </div>
+        </header>
+        <main>
+            <div class="carousel">
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>
