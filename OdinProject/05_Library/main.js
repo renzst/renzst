@@ -4,7 +4,7 @@
 
 function generateHex() {
     let num = Math.floor(Math.random()*Math.pow(16, 6));
-    return num.toString(16);
+    return "id" + num.toString(16);
 }
 
 
@@ -22,6 +22,15 @@ Library.prototype.addBooks = function(...books) {
 
 Library.prototype.getBooks = function() {
     return this.bookArray;
+}
+
+Library.prototype.getBook = function(id) {
+    for (let book of this.bookArray) {
+        if (book.uuid == id) {
+            return book;
+        }
+    }
+    return undefined;
 }
 
 Library.prototype.getBookCount = function() {
@@ -82,7 +91,13 @@ Book.prototype.generateLibraryCard = function() {
 
     let readStatus = document.createElement("read-status");
     readStatus.classList.add("read-status");
-    if (this.hasRead) readStatus.classList.add("read-true");
+    if (this.hasRead) {
+        readStatus.classList.add("read-true");
+        readStatus.textContent = "Read";
+    }
+    else {
+        readStatus.textContent = "Unread";
+    }
 
     let cardContent = document.createElement("div");
     cardContent.classList.add("card-content");
@@ -102,12 +117,19 @@ Book.prototype.generateLibraryCard = function() {
     let deleteBtn = document.createElement("button");
     deleteBtn.innerText = "Delete";
     deleteBtn.classList.add("delete");
-    //deleteBtn.addEventListener("click", () => {});
+    deleteBtn.addEventListener("click", () => {
+        let thisCard = document.querySelector(`.carousel > .library-card#${card.id}`);
+        thisCard.remove();
+        biblio.removeBooks(card.id);
+    });
     card.appendChild(deleteBtn);
 
     let toggleRead = document.createElement("button");
     toggleRead.innerText = this.hasRead ? "Mark unread" : "Mark read";
-    toggleRead.addEventListener("click", this.toggleReadStatus());
+    toggleRead.addEventListener("click", () => {
+        this.toggleReadStatus();
+        updateCard(card.id);
+    });
     card.appendChild(toggleRead);
 
 
@@ -115,6 +137,12 @@ Book.prototype.generateLibraryCard = function() {
 }
 
 // DOM-specific functions
+
+function updateCard(id) {
+    let book = biblio.getBook(id);
+    let card = document.querySelector(`.carousel > .library-card#${book.uuid}`)
+    card.replaceWith(book.generateLibraryCard());
+}
 
 function populateCarousel(library) {
     const carousel = document.querySelector(".carousel");
@@ -126,7 +154,6 @@ function populateCarousel(library) {
 function updateCarousel(library) {
     const carouselChildren = document.querySelectorAll(".carousel > *");
     for (child of carouselChildren) {
-        console.log(child);
         child.remove();
     }
     populateCarousel(library);
