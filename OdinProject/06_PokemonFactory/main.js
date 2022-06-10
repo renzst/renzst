@@ -26,13 +26,49 @@ const speciesProtos = (() => {
         }
         return undefined;
     }
-    return {addSpecies, getSpeciesCount, getSpecies}
+    return {addSpecies, getSpeciesCount, getProto}
 })();
 
-speciesProtos.addSpecies("rattata",  [30, 56, 35, 25, 72]);
-speciesProtos.addSpecies("pikachu", [35, 55, 30, 50, 90]);
+const moveProtos = (() => {
+    list = [];
+    const addMoves = (name, type_, power, accuracy, effect) => {
+        list.push({
+            name, 
+            type_, 
+            power, 
+            accuracy,
+            effect: effect ? effect : (self, enemy) => {
+                return Math.floor(((2 * self.getStat("level") / 5 + 2) * power * self.getStat("attack") / enemy.getStat("defense") / 50) + 2)
+            },
+        })
+    };
+    
+    const getMove = move_ => {
+        for (move of list) {
+            if (move.name == move_) {
+                return move;
+            }
+        }
+        return undefined;
+    };
 
-const createPokemon = (species_, level) => {
+    return({addMoves, getMove})
+})();
+
+moveProtos.addMoves("scratch", "normal", 100, 40, undefined);
+moveProtos.addMoves("sonicboom", "normal", 100, undefined, (self, enemy) => {return 20});
+
+speciesProtos.addSpecies("rattata",  ["normal"], [30, 56, 35, 25, 72]);
+speciesProtos.addSpecies("pikachu", ["electric"], [35, 55, 30, 50, 90]);
+
+const calcStat = function(IV, stat, level, hpFlag) {
+    stat = Math.floor( (IV + stat + 50) * level / 50 + 5 );
+    if (hpFlag) {stat += 5};
+    return stat;
+
+}
+
+const createPokemon = (species_, level_) => {
     const proto = speciesProtos.getProto(species_);
     if (!proto) {
         return undefined;
@@ -41,27 +77,62 @@ const createPokemon = (species_, level) => {
         const species = proto.species;
         let nickname = species;
         const types = proto.types;
+        let level = level_;
 
         const IV = Math.floor(Math.random()*6);
-        let maxhp = Math.floor( (IV + proto.hp + 50) * level / 50 + 10 );
+        let maxhp = calcStat(IV, proto.hp, level);
         let curhp = maxhp;
-        let attack = Math.floor( (IV + proto.attack + 50) * level / 50 + 5 );
-        let defense = Math.floor( (IV + proto.defense + 50) * level / 50 + 5 );
-        let special = Math.floor( (IV + proto.special + 50) * level / 50 + 5 );
-        let speed = Math.floor( (IV + proto.speed + 50) * level / 50 + 5 );
-        let status = 1;
+        let attack = calcStat(IV, proto.attack, level);
+        let defense = calcStat(IV, proto.defense, level);
+        let special = calcStat(IV, proto.special, level);
+        let speed = calcStat(IV, proto.speed, level);
+        let status = 1; // 1 = alive, 0 = fainted
 
         const moves = [];
+
+        const addMoves = (...moves_) => {
+            for (let move of moves_) {
+                if (moves.length == 4) {
+                    break;
+                }
+                moves.push(move);
+            }
+        }
+
+        const getMove = move_ => {
+            for (let move of moves) {
+                if (move.name == move_) {
+                    return move;
+                }
+            }
+            return undefined;
+        };
 
         const getStat = (stat) => {
             switch (stat) {
                 case "hp" : return curhp;
+                case "level" : return level;
                 case "attack" : return attack;
                 case "defense" : return defense;
                 case "special" : return special;
                 case "speed" : return speed;
                 default : return undefined;
             }
+        };
+
+        const levelUp = () => {
+            level += 1;
+            curhp = curhp/maxhp;
+            maxhp = calcStat(IV, proto.hp, level);
+            curhp *= maxhp;
+            attack = calcStat(IV, proto.attack, level);
+            defense = calcStat(IV, proto.defense, level);
+            special = calcStat(IV, proto.special, level);
+            speed = calcStat(IV, proto.speed, level);
+        }
+
+        const getStats = () => {
+            return({curhp, maxhp, attack, defense, special, speed});
         }
 
         const getStatus = () => {return status};
@@ -85,12 +156,65 @@ const createPokemon = (species_, level) => {
             nickname,
             types,
             moves,
+            addMoves,
+            getMove,
             getStat,
+            getStats,
             getStatus,
+            levelUp, // should be made private soon
             rename,
             receiveDamage
         })
     }
 }
 
-const pikapika = createPokemon("pikachu", 10);
+const pikapika = createPokemon("pikachu");
+pikapika.rename("Pikapika");
+pikapika.addMoves(moveProtos.getMove("scratch"), moveProtos.getMove("sonicboom"));
+const ratataaa = createPokemon("rattata", 10);
+ratataaa.addMoves(moveProtos.getMove("scratch"));
+
+/*
+ideal battle flow: 
+speed checks
+  - check flags
+  - check modifiers
+  - check base speeds
+whoever is first
+  - get damage
+  - get effects
+  - apply to opposition
+  - reset temporary flags
+  - if enemy faints, end battle
+do the same with the next
+damage from poison/burns
+ */
+
+
+const generateBattle = function(self, enemy) {
+    console.log(`${self.nickname} and ${enemy.nickname} want to battle!`);
+    console.log(self.getStat("hp"), enemy.getStat("hp"));
+
+    while (self.getStatus() && enemy.getStatus()) {
+        let damageToEnemy = self.getMove("scratch").effect(self, enemy);
+        let damageToSelf = enemy.getMove("scratch").effect(enemy, self);
+        if (self.getStat("speed") >= enemy.getStat("speed")) {
+            console.log(`${enemy.nickname} took ${damageToEnemy} damage!`);
+            enemy.receiveDamage(damageToEnemy);
+            if (!enemy.getStatus()) {break};
+            console.log(`${self.nickname} took ${damageToSelf} damage!`);
+            self.receiveDamage(damageToSelf);
+            
+        }
+        else {
+            self.receiveDamage(damageToSelf);
+            console.log(`${self.nickname} took ${damageToSelf} damage!`);
+            if (!self.getStatus()) {break};
+            console.log(`${enemy.nickname} took ${damageToEnemy} damage!`);
+            enemy.receiveDamage(damageToEnemy);        }
+        console.log(self.getStat("hp"), enemy.getStat("hp"));
+    }
+    console.log("Battle ended");
+}
+
+generateBattle(pikapika, ratataaa);
