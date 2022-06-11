@@ -53,6 +53,7 @@ const createPlayer = (xo, order, interactiveFlag = true) => {
     }
 
     return ({
+        selectedCells,
         marker,
         order,
         interactive,
@@ -114,7 +115,7 @@ const createGameboard = (n) => {
             value = 1;
             value *= rowFactors[row] * colFactors[col];
             if (row == col) {value *= diaFactors[0]};
-            if (row + col == n + 1) {value *= diaFactors[1]}
+            if (row + col == n - 1) {value *= diaFactors[1]}
             grid.push(createCell(value));
         }
     }
@@ -158,11 +159,14 @@ const createDisplay = (gameboard) => {
     const declareTie = () => {
         disableAllButtons();
         winnerDiv.textContent = "It's a tie. WhOmp whomp.";
+        return "Tie";
     }
 
     const declareWinner = (winningPlayer) => {
         disableAllButtons();
         winnerDiv.textContent = `Player ${winningPlayer.marker} wins!`
+
+        return winningPlayer.marker;
     }
 
     return {target, declareTie, declareWinner}
@@ -171,32 +175,44 @@ const createDisplay = (gameboard) => {
 const game = (n) => {
     let player1 = createPlayer("🍆", 1, true);
     let player2 = createPlayer("🍑", 2, true);
+
+    let result;
     let gameboard = createGameboard(n);
-    console.log(gameboard.grid);
+
     gameboard.currentPlayer = player1;
+
     const display = createDisplay(gameboard);
 
     // game logic
+    console.log(display.target)
     display.target.addEventListener("click", () => {
-        console.log(`Turn ${gameboard.turnCount}`);
+        console.log(gameboard.currentPlayer.selectedCells);
         if (gameboard.currentPlayer.checkForWin(n)) {
-            display.declareWinner(gameboard.currentPlayer)}
+            result = display.declareWinner(gameboard.currentPlayer);
+            gameboard.currentPlayer = undefined;
+        }
         else if (gameboard.turnCount >= Math.pow(n, 2)) {
-            display.declareTie();
+            result = display.declareTie();
+            gameboard.currentPlayer = undefined;
         }
         else {
             gameboard.currentPlayer = gameboard.turnCount % 2 == 0 ? player1 : player2;
         }
     })
+
+    return {players: [player1, player2], gameboard, display, result};
 }
 
 function initialize() {
     const playButton = document.querySelector("#reset");
     const nInput = document.querySelector("#n");
 
+    let g;
     playButton.addEventListener("click", () => {
         if (nInput.value) {
-            game(nInput.value);
+            playButton.textContent = "Reset";
+            g = game(nInput.value);
+            console.log(g);
         }
     })
 }
