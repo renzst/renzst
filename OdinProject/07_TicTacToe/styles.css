@@ -1,0 +1,69 @@
+:root {
+    font-family: sans-serif;
+    --mainwidth: 600px;
+    --n: 3;
+}
+
+body {
+    background-color: aqua;
+}
+
+.main-container {
+    background-color: white;
+    width: var(--mainwidth);
+    margin: auto;
+}
+
+header, footer {
+    text-align: center;
+    margin: auto;
+    padding: 1em 0;
+}
+
+button, select, input {
+    background-color: white;
+    border: 2px solid black;
+    padding: 0.5em;
+}
+
+button:disabled, select:disabled, input:disabled {
+    background-color: #ddd;
+}
+
+button:active, select:active {
+    background-color: #ddd;
+}
+
+#gameboard {
+    background-color: black;
+    border: 1em solid black;
+    margin: 1em;
+    display: grid;
+    grid-template-columns: repeat(var(--n), 1fr);
+    grid-template-rows: repeat(var(--n), 1fr);
+    gap: 1em;
+}
+
+#gameboard > button {
+    height: calc(var(--mainwidth)/var(--n));
+    font-size: 2rem;
+    border: none;
+    background-color: white;
+    color: black;
+}
+
+#gameboard > button:hover {
+    background-color: #ddd;
+    border: 1px solid #bbb;
+}
+
+#gameboard > button:active {
+    background-color: #bbb;
+    border: 1px solid #bbb;
+
+}
+
+#gameboard > button:disabled {
+    background-color: #bbb;
+    color: #666;
+}

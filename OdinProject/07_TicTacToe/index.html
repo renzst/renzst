@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dick Dag Dough</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="main-container">
+        <header>
+            <h1>Dick Dab Dough</h1>
+            <label for="n">Grid size</label>
+            <input id="n" type="number" min="3" max="7" size="3">
+            <select disabled id="player">
+                <option value="O">Play as O (go first)</option>
+                <option value="X">Play as X (go second)</option>
+            </select>
+            <button id="reset">Play</button>
+        </header>
+        <div id="gameboard">
+            <button disabled></button>
+            <button disabled></button>
+            <button disabled></button>
+            <button disabled></button>
+            <button disabled></button>
+            <button disabled></button>
+            <button disabled></button>
+            <button disabled></button>
+            <button disabled></button>
+        </div>
+        <footer>
+            <h2 id="winner"></h2>
+        </footer>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>
