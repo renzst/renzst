@@ -30,10 +30,8 @@ function generatePrimes(n) {
     return primeArray;
 }
 
-const createPlayer = (xo, order, interactiveFlag = true) => {
+const createPlayer = (marker, interactiveFlag = true) => {
     const selectedCells = [];
-    const marker = xo;
-    const interactive = interactiveFlag;
 
     const addToSelected = value => selectedCells.push(value);
     const checkForWin = (n) => {
@@ -55,8 +53,7 @@ const createPlayer = (xo, order, interactiveFlag = true) => {
     return ({
         selectedCells,
         marker,
-        order,
-        interactive,
+        interactive: interactiveFlag,
         addToSelected,
         checkForWin,
     })
@@ -119,7 +116,97 @@ const createGameboard = (n) => {
             grid.push(createCell(value));
         }
     }
-    return {currentPlayer, turnCount, grid};
+    return {currentPlayer, turnCount, grid, n};
+}
+
+function factorize(n, primes) {
+    const factorArray = [];
+    for (let prime of primes) {
+        if (n % prime == 0) {
+            factorArray.push(prime);
+        }
+    }
+    return factorArray;
+}
+
+const createBreakout = (gameboard) => {
+    const primes = generatePrimes(gameboard.n * 2 + 2)
+    const breakoutGrid = {};
+    for (let prime of primes) {
+        breakoutGrid[prime] = gameboard.grid.
+        filter(cell => cell.value % prime == 0).
+        map(cell => {
+            return {id: cell.id, value: cell.value, marker: cell.getClaim()}
+        });
+    }
+    return breakoutGrid;
+}
+
+const checkEarlyStale = (gameboard) => {
+    const breakoutGrid = createBreakout(gameboard);
+    for (breakout in breakoutGrid) {
+        let simplified = breakoutGrid[breakout].map(cell => cell.marker);
+        let onePlayer = simplified.filter(mark => mark == "🍆").length;
+        let twoPlayer = simplified.filter(mark => mark != "🍆" && mark !== undefined).length;
+        if (twoPlayer * onePlayer == 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+const createAI = (player) => {
+    const marker = player.marker;
+
+    const getBestOption = (gameboard) => {
+        const breakoutGrid = createBreakout(gameboard);
+        const primes = generatePrimes(2 * gameboard.n + 2);
+
+        const optionsLeft = gameboard.grid.filter(cell => !cell.getClaim()).map(cell => cell.value);
+        const optionsEvaluated = [];
+    
+        for (let option of optionsLeft) {
+            let factors = factorize(option, primes);
+            let eval = 0;
+    
+            for (let breakout in breakoutGrid) {
+                for (let factor of factors) {
+                    if (factor == breakout) {
+                        let simplified = breakoutGrid[breakout].map(cell => cell.marker);
+                        let thisPlayer = simplified.filter(mark => mark == marker).length;
+                        let otherPlayer = simplified.filter(mark => mark != marker && mark !== undefined).length;
+    
+                        if (otherPlayer == gameboard.n - 1) {eval += 16}
+                        if (thisPlayer == gameboard.n - 1) {eval += 8}
+                        if (thisPlayer == 0 && otherPlayer > 0 && otherPlayer < gameboard.n - 1) {eval += 1}
+                        if (thisPlayer > 0 && thisPlayer < gameboard.n - 1 && otherPlayer == 0) {eval += 2}
+                        if (thisPlayer == 0 && otherPlayer == 0) {eval += 1}
+    
+                    }
+                }
+            }
+    
+            optionsEvaluated.push({option, eval})
+        }
+    
+        let best = optionsEvaluated[0];
+        
+        for (option of optionsEvaluated) {
+            if (best.eval < option.eval) {best = option}
+        }
+        return best.option
+    }
+
+    const markBoard = (gameboard, value) => {
+        for (cell of gameboard.grid) {
+            if (cell.value == value) {
+                cell.getDOM().click();
+                break;
+            }
+        }
+    }
+
+    return {getBestOption, markBoard}
 }
 
 const createDisplay = (gameboard) => {
@@ -145,7 +232,7 @@ const createDisplay = (gameboard) => {
             cellButton.textContent = gameboard.currentPlayer.marker;
             gameboard.turnCount++;
         })
-
+        cell.linkToDOM(cellButton);
         target.append(cellButton);
     }
 
@@ -162,6 +249,12 @@ const createDisplay = (gameboard) => {
         return "Tie";
     }
 
+    const declareEarlyStale = () => {
+        disableAllButtons();
+        winnerDiv.textContent = "It's an early tie, no chance of win"
+        return "Tie";
+    }
+
     const declareWinner = (winningPlayer) => {
         disableAllButtons();
         winnerDiv.textContent = `Player ${winningPlayer.marker} wins!`
@@ -169,12 +262,28 @@ const createDisplay = (gameboard) => {
         return winningPlayer.marker;
     }
 
-    return {target, declareTie, declareWinner}
+    return {target, declareTie, declareEarlyStale, declareWinner}
 }
 
-const game = (n) => {
-    let player1 = createPlayer("🍆", 1, true);
-    let player2 = createPlayer("🍑", 2, true);
+const game = (n, gameType) => {
+    let player1;
+    let player2;
+    if (gameType == '2') {
+        player1 = createPlayer("🍆", true);
+        player2 = createPlayer("🍑", false);
+    }
+    else if (gameType == '3') {
+        player1 = createPlayer("🍆", false);
+        player2 = createPlayer("🍑", true);
+    }
+    else {
+        player1 = createPlayer("🍆", true);
+        player2 = createPlayer("🍑", true);
+    }
+
+    for (let player of [player1, player2]) {
+        player.ai = player.interactive ? undefined : createAI(player);
+    }
 
     let result;
     let gameboard = createGameboard(n);
@@ -183,10 +292,13 @@ const game = (n) => {
 
     const display = createDisplay(gameboard);
 
+    if (player1.ai && gameboard.turnCount == 0) {
+        gameboard.currentPlayer.ai.markBoard(gameboard, gameboard.currentPlayer.ai.getBestOption(gameboard));
+        gameboard.currentPlayer = player2;
+    }
+
     // game logic
-    console.log(display.target)
     display.target.addEventListener("click", () => {
-        console.log(gameboard.currentPlayer.selectedCells);
         if (gameboard.currentPlayer.checkForWin(n)) {
             result = display.declareWinner(gameboard.currentPlayer);
             gameboard.currentPlayer = undefined;
@@ -195,8 +307,15 @@ const game = (n) => {
             result = display.declareTie();
             gameboard.currentPlayer = undefined;
         }
+        else if (checkEarlyStale(gameboard)) {
+            result = display.declareEarlyStale();
+            gameboard.currentPlayer = undefined;
+        }
         else {
             gameboard.currentPlayer = gameboard.turnCount % 2 == 0 ? player1 : player2;
+            if (gameboard.currentPlayer.ai !== undefined) {
+                gameboard.currentPlayer.ai.markBoard(gameboard, gameboard.currentPlayer.ai.getBestOption(gameboard));
+            }
         }
     })
 
@@ -206,70 +325,19 @@ const game = (n) => {
 function initialize() {
     const playButton = document.querySelector("#reset");
     const nInput = document.querySelector("#n");
+    const gameType = document.querySelector("#player");
 
     let g;
     playButton.addEventListener("click", () => {
-        if (nInput.value) {
+        if (g) {
+            g = undefined;
+        }
+        if (nInput.value >= 3 && nInput.value <= 5) {
             playButton.textContent = "Reset";
-            g = game(nInput.value);
-            console.log(g);
+            gameTypeSelected = gameType.options[gameType.selectedIndex].value;
+            g = game(nInput.value, gameTypeSelected);
         }
     })
 }
 
 initialize();
-
-/* 
-Workflow for tictactoe gameboard
-  - user selects options (play as o or x)
-  - user hits start game
-  - game object initializes
-    - instantiates gameboard, display, and player objects
-    - find player o/x and prompt them
-    - player marks button
-    - calls display object to pass down value of cell to player o and to mark cell in gameboard
-    - checks to see if either player has:
-        - at least n objects claimed
-        - whether items claimed are divisible by a single prime
-        - if so, claim win and stop game
-        - otherwise: call for player x
-  - gameboard object initializes (the logical one)
-    - logical array/etc is created to store results
-        - array consists of cell objects
-        - each cell contains:
-            - an id
-            - its membership in rows, cols, and diag
-            - maybe a succinct way to do it that's extensible:
-                - row-1 has those divisible by 2
-                - row-2 divisible by 3
-                - row-3 divisible by 5
-                - col-1 divisible by 7
-                - col-2 divisible by 11
-                - col-3 divisible by 13
-                - diag-1 divisible by 17
-                - diag-2 divisible by 19
-            - for bigger gameboards, primes needed are 2n+2, where
-            - n is the width of the gameboarddsds
-            - 2*7*17    2*11    2*13*19
-            - 3*7    3*11*17*19 3*13
-            - 5*19      5*11    5*13*19
-            - and then lastly a "mark" indicating what player took it
-            - generate that loop:
-            - create row primes, col primes, and diag primes
-                - for i of n
-                    - for j of n
-                        cell.value = row[i]*col[j]
-                        if i==j:
-                            multiply by diag prime 1
-                        if i+j==n+1
-                            multiple by diag prime 2
-                        push to tempArray to loop over
-- player objects initialize 
-    - tagged with user-type (interactive or computer) - let's do interactive first
-    - X/O, and array of results
-- display object initializes
-    - basically tie cells created in gameboard to display objects
-    - creates cells using properties of cell
-    - puts event listeners
-    
-        */

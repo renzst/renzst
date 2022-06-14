@@ -12,6 +12,7 @@ body {
     background-color: white;
     width: var(--mainwidth);
     margin: auto;
+    border-radius: 1em;
 }
 
 header, footer {

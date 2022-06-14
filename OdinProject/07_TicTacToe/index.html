@@ -12,10 +12,16 @@
         <header>
             <h1>Dick Dab Dough</h1>
             <label for="n">Grid size</label>
-            <input id="n" type="number" min="3" max="7" size="3">
-            <select disabled id="player">
-                <option value="1">Play as 🍆 (go first)</option>
-                <option value="2">Play as 🍑 (go second)</option>
+            <input id="n" type="number" min="3" max="5" size="1">
+            <select id="player">
+                <option value="1">Play interactively</option>
+                <option value="2">Play as 🍆 (go first)</option>
+                <option value="3">Play as 🍑 (go second)</option>
+            </select>
+            <select disabled name="ai-level" id="ai-level">
+                <option value="0">Hard AI</option>
+                <option value="1">Medium AI</option>
+                <option value="2">Soft AI</option>
             </select>
             <button id="reset">Play</button>
         </header>
