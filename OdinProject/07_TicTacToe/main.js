@@ -30,6 +30,16 @@ function generatePrimes(n) {
     return primeArray;
 }
 
+function factorize(n, primes) {
+    const factorArray = [];
+    for (let prime of primes) {
+        if (n % prime == 0) {
+            factorArray.push(prime);
+        }
+    }
+    return factorArray;
+}
+
 const createPlayer = (marker, interactiveFlag = true) => {
     const selectedCells = [];
 
@@ -117,16 +127,6 @@ const createGameboard = (n) => {
         }
     }
     return {currentPlayer, turnCount, grid, n};
-}
-
-function factorize(n, primes) {
-    const factorArray = [];
-    for (let prime of primes) {
-        if (n % prime == 0) {
-            factorArray.push(prime);
-        }
-    }
-    return factorArray;
 }
 
 const createBreakout = (gameboard) => {
