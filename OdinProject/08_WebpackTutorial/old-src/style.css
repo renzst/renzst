@@ -1,7 +1,7 @@
 @font-face {
     font-family: 'Lato';
     src: url('./Lato-Regular.ttf');
-}
+} // requires a rule be set in config to match ttf etc, type asset/resource
 
 .hello {
     color: red;
