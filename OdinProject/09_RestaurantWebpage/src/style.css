@@ -1,0 +1,11 @@
+#content {
+    width: 95%;
+    text-align: center;
+    margin: auto;
+}
+
+@media screen and (min-width: 48em) {
+    #content {
+        max-width: 64em;
+    }
+}
