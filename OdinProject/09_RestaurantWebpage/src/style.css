@@ -2,10 +2,76 @@
     width: 95%;
     text-align: center;
     margin: auto;
+    font-family: sans-serif;
+
+}
+
+header h1 {
+    font-weight: bold;
+}
+
+header .motto {
+    font-style: italic;
+}
+
+menu {
+    margin-bottom: 0;
+}
+
+menu button {
+    border: 5px solid black;
+    border-bottom: none;
+    border-radius: 2px;
+    background-color: transparent;
+    padding: 1em;
+    text-transform: uppercase;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+}
+
+main {
+    border: 5px solid black;
+    margin: 0;
+}
+
+main p:first-of-type {
+    font-weight: bold;
+}
+
+.about {
+    border-color: red;
+}
+
+button.about:hover, button.about.active {
+    background-color: red;
+    color: white;
+}
+
+.getFood {
+    border-color: green;
+}
+
+button.getFood:hover, button.getFood.active {
+    background-color: green;
+    color: white;
+}
+
+.contact {
+    border-color: blue;
+}
+
+button.contact:hover, button.contact.active {
+    background-color: blue;
+    color: white;
 }
 
 @media screen and (min-width: 48em) {
     #content {
         max-width: 64em;
     }
+}
+
+img {
+    max-width: 90%;
+    max-height: 16em;
 }
