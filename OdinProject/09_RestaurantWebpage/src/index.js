@@ -10,7 +10,7 @@ const Header = (() => {
     const wrapper = document.createElement("header");
 
     const h1 = document.createElement("h1");
-    h1.textContent = "FREE GROCERY STORE";
+    h1.textContent = "Free Grocery Store";
 
     const motto = document.createElement("div");
     motto.classList.add("motto");
@@ -34,50 +34,20 @@ function deactivateAllButtons() {
     }
 }
 
-const Menu = (() => {
-    const wrapper = document.createElement("menu");
-
-    const about = document.createElement("button");
-    about.classList.add("about", "active");
-    about.textContent = "About";
-    about.addEventListener("click", () => {
-        deactivateAllButtons();
-        about.classList.add("active");
-        document.querySelector("main").remove();
-        document.querySelector("#content").appendChild(About);
-    });
-
-    const getFood = document.createElement("button");
-    getFood.classList.add("getFood");
-    getFood.textContent = "Get Food";
-    getFood.addEventListener("click", () => {
-        deactivateAllButtons();
-        getFood.classList.add("active");
-        document.querySelector("main").remove();
-        document.querySelector("#content").appendChild(GetFood);
-    });
-
-    const contact = document.createElement("button");
-    contact.classList.add("contact");
-    contact.textContent = "Contact";
-    contact.addEventListener("click", () => {
-        deactivateAllButtons();
-        getFood.classList.add("active");
-        document.querySelector("main").remove();
-        document.querySelector("#content").appendChild(Contact);
-    });
-
-    [about, getFood, contact].forEach(button => wrapper.appendChild(button));
-
-    return wrapper;
-})();
+function addDelayToChildren(children, interval = 10) {
+    let i = 0;
+    for (let child of children) {
+        child.style.animationDelay = i / interval + "s";
+        i++;
+    }
+}
 
 const About = (() => {
     const wrapper = document.createElement("main");
-    wrapper.classList.add("about")
+    wrapper.classList.add("about");
 
     const intro = document.createElement("p");
-    intro.textContent = "We're Free Grocery Store! We give groceries to people from our store, for free."
+    intro.textContent = "We're Free Grocery Store! We give groceries to people from our store, for free.";
 
     const more = document.createElement("p");
     more.textContent = "We operate mostly by delivery, but we also will pop in your neighborhood to give groceries to people, for free.";
@@ -86,6 +56,9 @@ const About = (() => {
     henlo.src = G1;
 
     [intro, more, henlo].forEach(child => wrapper.appendChild(child));
+
+    let i = 0;
+    addDelayToChildren(wrapper.children);
 
     return wrapper;
 })();
@@ -104,9 +77,20 @@ const GetFood = (() => {
         wrapper.appendChild(div);
     })
 
-    const p2 = document.createElement("p");
-    p2.textContent = "Sorry";
-    wrapper.appendChild(p2);
+    let h2text = "sorry";
+    const h2 = document.createElement("h2");
+    h2.id = "sorry";
+    for (let i = 0; i < h2text.length; i++) {
+        let span = document.createElement("span");
+        span.textContent = h2text.slice(i, i+1);
+        span.style.animationDelay = i/10 + "s";
+        h2.appendChild(span);
+    }
+    /* const p2 = document.createElement("p");
+    p2.textContent = "Sorry"; */
+    wrapper.appendChild(h2);
+
+    addDelayToChildren(wrapper.children);
 
     return wrapper;
 })();
@@ -130,17 +114,44 @@ const Contact = (() => {
 
     wrapper.appendChild(h2);
 
+    addDelayToChildren(wrapper.children);
+
     return wrapper;
 
 })();
 
+const Menu = (() => {
+    const wrapper = document.createElement("menu");
+
+    for (let button of ["about", "getFood", "contact"]) {
+        let b = document.createElement("button");
+        b.classList.add(button);
+        if (button == "about") {b.classList.add("active")};
+        b.textContent = button == "getFood" ? "Get Food" : button.toUpperCase();
+
+        let content;
+        if (button == "about") {content = About}
+        else if (button == "getFood") {content = GetFood}
+        else if (button == "contact") {content = Contact}
+        else {};
+
+        b.addEventListener("click", () => {
+            deactivateAllButtons();
+            b.classList.add("active");
+            document.querySelector("main").remove();
+            document.querySelector("#content").appendChild(content);
+        });
+
+        wrapper.appendChild(b);
+    }
+
+    return wrapper;
+})();
+
 function main() {
     const anchor = document.querySelector("#content");
-    
     let main = About;
-
     [Header, Menu, main].forEach(element => anchor.appendChild(element));
-
 }
 
 main();

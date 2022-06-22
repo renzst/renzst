@@ -1,13 +1,69 @@
+:root {
+    --accent: #dcd0ff; /* lavender */
+    --acc1: #afc9ff; /* star purple */
+    --acc2: #fff4f3; /* in between */
+    --acc3: #ffc78e; /* star orange */
+    --flipin: 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0s 1 normal both running flip-in-ver-left;
+}
+
+body {
+    background-image: url("./dumb/stars.gif");
+    background-repeat: repeat;
+    background-size: 150px;
+}
+
 #content {
     width: 95%;
     text-align: center;
     margin: auto;
     font-family: sans-serif;
+    background: transparent;
+    padding: 1em;
+    border-radius: 5px;
+}
 
+@media screen and (min-width: 40em) {
+    #content {
+        max-width: 40em;
+    }
+}
+
+@keyframes headher {
+    from {border: 10px solid white;}
+    to {border: 10px solid var(--accent);}
+}
+
+header {
+    border: 10px solid white;
+    border-radius: 5px;
+    margin: auto;
+    padding: 1em;
+    width: max-content;
+    box-sizing: border-box;
+    background-color: white;
+}
+
+header:hover {
+    animation-name: headher;
+    animation-duration: 0.25s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes colorize {
+    0% {color: #333;}
+    25% {color: var(--acc1);}
+    50% {color: var(--acc2);}
+    75% {color: var(--acc3);}
 }
 
 header h1 {
     font-weight: bold;
+    text-transform: uppercase;
+    text-shadow: 4px 4px #ccc;
+    animation-name: colorize;
+    animation-duration: 2s;
+    animation-fill-mode: forwards;
+    animation-iteration-count: infinite;
 }
 
 header .motto {
@@ -22,16 +78,33 @@ menu button {
     border: 5px solid black;
     border-bottom: none;
     border-radius: 2px;
-    background-color: transparent;
+    background-color: white;
     padding: 1em;
     text-transform: uppercase;
     margin-left: 0.5em;
     margin-right: 0.5em;
+    font-weight: bold;
+}
+
+@keyframes slide-down {
+    from {
+        transform: translateY(-2em);
+        opacity: 0;}
+    to {transform: none;
+        opacity: 1;}
 }
 
 main {
     border: 5px solid black;
     margin: 0;
+    background-color: white;
+    padding: 1em;
+    border-radius: 5px;
+}
+
+main > * {
+    animation-name: slide-down;
+    animation-duration: 1s;
 }
 
 main p:first-of-type {
@@ -39,36 +112,49 @@ main p:first-of-type {
 }
 
 .about {
-    border-color: red;
+    border-color: var(--acc1);;
 }
 
 button.about:hover, button.about.active {
-    background-color: red;
+    background-color: var(--acc1);
     color: white;
 }
 
 .getFood {
-    border-color: green;
+    border-color: var(--acc2);
+}
+
+h2#sorry > * {
+    margin: 0em 0.25em;
+
+    animation-name: colorize;
+    animation-duration: 1s;
+    animation-timing-function: ease;
+    animation-iteration-count: infinite;
+}
+
+@keyframes bounce {
+    0%   { transform: scale(1,1) translateY(0); }
+    10%  { transform: scale(1.1,.9) translateY(0); }
+    30%  { transform: scale(.9,1.1)   translateY(-55px);}
+    50%  { transform: scale(1.05,.95) translateY(0); }
+    58%  { transform: scale(1,1) translateY(-7px); }
+    65%  { transform: scale(1,1) translateY(0);}
+    100% { transform: scale(1,1) translateY(0);}
 }
 
 button.getFood:hover, button.getFood.active {
-    background-color: green;
-    color: white;
+    background-color: var(--acc2);
+    color: grey;
 }
 
 .contact {
-    border-color: blue;
+    border-color: var(--acc3);
 }
 
 button.contact:hover, button.contact.active {
-    background-color: blue;
+    background-color: var(--acc3);
     color: white;
-}
-
-@media screen and (min-width: 48em) {
-    #content {
-        max-width: 64em;
-    }
 }
 
 img {
