@@ -1,99 +1,104 @@
 :root {
     font-family: sans-serif;
+    --dist: 300px;
+    --player: hsl(338, 78%, 48%);
+    --playerPoint: hsl(338, 78%, 68%, 50%);
+    --computer: hsl(170, 100%, 15%);
+    --computerPoint: hsl(170, 100%, 25%, 50%)
 }
 
 #container {
-    width: 90%;
-    margin: auto;
-    text-align: center;
+    width: 100%;
+    height: 100vh;
 }
 
 #game {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-        "wnr wnr"
-        "ply cmp"
+    width: 100%;
+    height: 100vh;
+    position: absolute;
 }
 
-#game > * {
-    border: 1px solid black;
+#points {
+    width: 100%;
+    height: 100vh;
 }
 
-.winner {
-    grid-area: wnr;
+.point {
+    width: 20%;
 }
 
-.box {
+.point.player {
+    background-color: var(--playerPoint)
+}
+
+.point.computer {
+    background-color: var(--computerPoint);
+}
+
+.pointContainer {
+    width: 100%;
+    height: 50vh;
     display: flex;
-    flex-flow: row wrap;
 }
 
-.box.player {
-    grid-area: ply;
+#playerPoints {
+    flex-direction: row;
 }
 
-.box.computer {
-    grid-area: cmp;
-    flex-flow: row-reverse wrap;
+#computerPoints {
+    flex-direction: row-reverse;
 }
 
-.box > * {
-    padding: 0.5em;
-    margin: auto;
-}
+#buttons {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    left: 50%;
 
-.choices {
     display: flex;
-    flex-flow: column wrap;
+    gap: calc(var(--dist)/2);
+    z-index: 1;
 }
 
-.choices > * {
-    margin: 0.5em;
-    font-size: 1.5em;
+#buttons button {
     padding: 0.5em;
     border-radius: 50%;
-    border: 1px solid black;
-    background-color: white;
+    border: 0.25em solid hsl(255, 0%, 75%, 0.5);
+
+    position: relative;
+    font-size: 350%;
+
+    background-color: hsl(0, 0%, 100%, 75%);
 }
 
-.choices > button:hover {
-    background-color: #ddd;
+#buttons button:hover {
+    background-color: hsl(0, 0%, 90%, 75%);
 }
 
-.choices > button:active {
-    background-color: #bbb;
+#buttons button:active {
+    background-color: hsl(0, 0%, 80%, 75%);
 }
 
-.last-choice {
-    font-size: 2em;
-    margin: auto 0;
+#buttons button.player {
+    border-left: 0.25em solid var(--player);
+    border-top: 0.25em solid var(--player);
 }
 
-.choice {
-    border: 1px solid black;
-    box-sizing: border-box;
-    padding: 0.5em;
+#buttons button.computer {
+    border-right: 0.25em solid var(--computer);
+    border-bottom: 0.25em solid var(--computer);
 }
 
-.wins-title {
-    font-style: oblique;
+#rock {
+    bottom: calc(var(--dist)/2*0.866);
+    transform: translate(50%, -50%);
 }
 
-.wins {
-    padding: 0;
-    margin: 0 1em;
+#scissors {
+    top: calc(var(--dist)/2*0.866);
+    transform: translateY(50%);
 }
-
-.wins-amount {
-    font-size: 1.5em;
-    font-style: monospace;
-}
-
-h2 {
-    font-style: oblique;
-}
-
-menu {
-    padding: 0;
+#paper {
+    bottom: calc(var(--dist)/2*0.866);
+    transform: translate(-50%, -50%);
 }
