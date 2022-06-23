@@ -1,4 +1,79 @@
-const choices = {
+// rock paper scissors, v2
+// renz torres
+
+/* {
+    'rock': 2,
+    'scissors': 1,
+    'paper': 0
+} */
+
+const Player = (isComputer) => {
+    const computerChoice = () => {
+        return Math.floor(Math.random()*3);
+    }
+
+    const playerChoice = () => {
+        let choice = prompt("What choice");
+        console.log(choice);
+        return choice;
+    }
+
+    return isComputer ?
+        {makeChoice: computerChoice} :
+        {makeChoice: playerChoice}
+}
+
+
+const Game = () => {
+    const pA = Player(false);
+    const pB = Player(true);
+
+    const rounds = [];
+
+    const doRound = () => {
+        let result = pA.makeChoice() - pB.makeChoice();
+        if (result < 0) {result += 3;};
+
+        rounds.push(result);
+        return result;
+    }
+
+    const getAwins = () => {
+        return rounds.filter(x => x == 1).length;
+    }
+
+    const getBwins = () => {
+        return rounds.filter(x => x == 2).length;
+    }
+
+    return {
+        doRound,
+        getAwins,
+        getBwins
+    }
+}
+
+const play = (to_n) => {
+    let game = Game();
+    let r;
+    while (game.getAwins() < to_n & game.getBwins() < to_n) {
+        r = game.doRound();
+    }
+    if (game.playerWins == to_n) {
+        console.log("Player won");
+    }
+    else {
+        console.log("Computer won");
+    }
+};
+
+const gameDisplay = () => {
+    
+}
+
+play(3);
+
+/* const choices = {
     'rock': 2,
     'scissors': 1,
     'paper': 0
@@ -72,13 +147,8 @@ function updateWins(playerWins, computerWins) {
 
 }
 
-const gameDisplay = () => {
-    const userRock = document.querySelector("#rock");
-    const userScis = document.querySelector("#scissors");
-    const userPape = document.querySelector("#paper");
-}
 
-function game() {
+const game() {
     let playerWins = 0;
     let computerWins = 0;
 
@@ -154,25 +224,11 @@ function game() {
             winDiv.textContent = winner + " has won!";
         };
     }); 
-}
+} 
 
-game();
+game()
 
-/* function game(n) {
-    results = [];
-    console.log("ROUND "+ (i+1));
-    let playerSel;
-    while (!((playerSel === 0) | playerSel)) {
-        let playerInput = prompt("Enter one of 'rock', 'paper', or 'scissors'");
-        playerSel = validatePlayerInput(playerInput);
-    }
-
-    let computerSel = computerSelect();
-    console.log("The computer chose "+displayChoice(computerSel));
-
-    results.push(playRound(computerSel, playerSel));
-} */
-
+*/
 
 /*
 rock 2
