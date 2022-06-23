@@ -86,6 +86,10 @@ menu button {
     font-weight: bold;
 }
 
+menu button:hover {
+    cursor: pointer;
+}
+
 @keyframes slide-down {
     from {
         transform: translateY(-2em);
@@ -160,4 +164,19 @@ button.contact:hover, button.contact.active {
 img {
     max-width: 90%;
     max-height: 16em;
+    border: 5px solid var(--accent);
+    display: block;
+    margin: 1em auto;
+}
+
+h1, h2 {
+    font-family: "Comic Sans MS", sans-serif;
+}
+
+h1::before, h2::before, h1::after, h2::after {
+    content: "✨"
+}
+
+header, main {
+    box-shadow: 8px 8px 4px rgb(10, 10, 10, 0.5);
 }

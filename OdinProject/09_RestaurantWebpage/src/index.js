@@ -28,6 +28,7 @@ const Header = (() => {
 function deactivateAllButtons() {
     const buttons = document.querySelectorAll("menu > button");
     for (let button of buttons) {
+        button.disabled = false;
         if (button.classList.contains("active")) {
             button.classList.remove("active");
         }
@@ -138,6 +139,7 @@ const Menu = (() => {
         b.addEventListener("click", () => {
             deactivateAllButtons();
             b.classList.add("active");
+            b.disabled = true;
             document.querySelector("main").remove();
             document.querySelector("#content").appendChild(content);
         });
