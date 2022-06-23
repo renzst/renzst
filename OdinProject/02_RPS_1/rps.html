@@ -5,23 +5,51 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rock Paper Scissors</title>
+    <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-    <h1>Rock, Paper, Scissors</h1>
-    <div id="choices">
-        <button id="rock">Rock</button>
-        <button id="scissors">Scissors</button>
-        <button id="paper">Paper</button>
-    </div>
-    <div id="winner">
-        <p>First to five wins!</p>
-        <p id="computer">Computer wins: 0</p>
-        <p id="player">Player wins: 0</p>
-        <p id="hasWon">No one has won yet...</p>
-    </div>
-    <div id="results-display">
-        <ul id="results">
-        </ul>
+    <div id="container">
+        <header>
+            <h1>Rock, Paper, Scissors</h1>
+            <h2 class="subtitle">First to five wins!</h2>
+        </header>
+        <main id="game">
+            <div class="winner">
+                <p>No winner yet...</p>
+            </div>
+            <div class="box player">
+                <div class="wins player">
+                    <p class="wins-title player">Player:</p>
+                    <p class="wins-amount player">0</p>
+                </div>
+                <menu class="choices player">
+                    <button id="rock">🪨</button>
+                    <button id="scissors">✂️</button>
+                    <button id="paper">📰</button>
+                </menu>
+                <div class="player last-choice">
+                    <div class="player choice">
+                        🪨
+                    </div>
+                </div>
+            </div>
+            <div class="box computer">
+                <div class="wins computer">
+                    <p class="wins-title computer">Computer:</p>
+                    <p class="wins-amount computer">0</p>
+                </div>
+                <menu class="choices computer">
+                    <span>🪨</span>
+                    <span>✂️</span>
+                    <span>📰</span>
+                </menu>
+                <div class="computer last-choice">
+                    <div class="player choice">
+                        🪨
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
     <script src="rps.js"></script>
 </body>

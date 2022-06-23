@@ -1,0 +1,99 @@
+:root {
+    font-family: sans-serif;
+}
+
+#container {
+    width: 90%;
+    margin: auto;
+    text-align: center;
+}
+
+#game {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+        "wnr wnr"
+        "ply cmp"
+}
+
+#game > * {
+    border: 1px solid black;
+}
+
+.winner {
+    grid-area: wnr;
+}
+
+.box {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+.box.player {
+    grid-area: ply;
+}
+
+.box.computer {
+    grid-area: cmp;
+    flex-flow: row-reverse wrap;
+}
+
+.box > * {
+    padding: 0.5em;
+    margin: auto;
+}
+
+.choices {
+    display: flex;
+    flex-flow: column wrap;
+}
+
+.choices > * {
+    margin: 0.5em;
+    font-size: 1.5em;
+    padding: 0.5em;
+    border-radius: 50%;
+    border: 1px solid black;
+    background-color: white;
+}
+
+.choices > button:hover {
+    background-color: #ddd;
+}
+
+.choices > button:active {
+    background-color: #bbb;
+}
+
+.last-choice {
+    font-size: 2em;
+    margin: auto 0;
+}
+
+.choice {
+    border: 1px solid black;
+    box-sizing: border-box;
+    padding: 0.5em;
+}
+
+.wins-title {
+    font-style: oblique;
+}
+
+.wins {
+    padding: 0;
+    margin: 0 1em;
+}
+
+.wins-amount {
+    font-size: 1.5em;
+    font-style: monospace;
+}
+
+h2 {
+    font-style: oblique;
+}
+
+menu {
+    padding: 0;
+}

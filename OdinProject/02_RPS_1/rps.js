@@ -63,27 +63,6 @@ function playRound(computerSel, playerSel) {
     return outcome;
 }
 
-/* function declareWinner(results) {
-    let computerWins = 0;
-    let playerWins = 0;
-    for (let result of results) {
-        switch (result) {
-            case 1: 
-                computerWins++;
-                break;
-            case 2:
-                playerWins++;
-                break;
-            default:
-                break;
-        }
-    }
-    return(
-        playerWins > computerWins ? 2 :
-            computerWins > playerWins ? 1 : 0
-    )
-} */
-
 function updateWins(playerWins, computerWins) {
     const player = document.querySelector("#player");
     const computer = document.querySelector("#computer");
@@ -91,6 +70,12 @@ function updateWins(playerWins, computerWins) {
     player.textContent = "Player wins: " + playerWins;
     computer.textContent = "Computer wins: " + computerWins;
 
+}
+
+const gameDisplay = () => {
+    const userRock = document.querySelector("#rock");
+    const userScis = document.querySelector("#scissors");
+    const userPape = document.querySelector("#paper");
 }
 
 function game() {
