@@ -4,7 +4,7 @@
     --player: hsl(338, 78%, 48%);
     --playerPoint: hsl(338, 78%, 68%, 50%);
     --computer: hsl(170, 100%, 15%);
-    --computerPoint: hsl(170, 100%, 25%, 50%)
+    --computerPoint: hsl(170, 100%, 25%, 50%);
 }
 
 #container {
@@ -24,15 +24,29 @@
 }
 
 .point {
-    width: 20%;
+    width: calc(100%/var(--n));
 }
 
-.point.player {
-    background-color: var(--playerPoint)
+@keyframes pointSlide {
+    from {transform: translateX(-100%);}
+    to {transform: translateX(0%);}
 }
 
-.point.computer {
+@keyframes pointSlideRev {
+    from {transform: translateX(100%);}
+    to {transform: translateX(0%);}
+}
+
+#playerPoints .point {
+    background-color: var(--playerPoint);
+    animation-name: pointSlide;
+    animation-duration: 0.5s;
+}
+
+#computerPoints .point {
     background-color: var(--computerPoint);
+    animation-name: pointSlideRev;
+    animation-duration: 0.5s;
 }
 
 .pointContainer {

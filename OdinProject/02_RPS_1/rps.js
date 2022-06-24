@@ -8,21 +8,25 @@
 } */
 
 const Player = (isComputer) => {
+    let choice;
+
     const computerChoice = () => {
         return Math.floor(Math.random()*3);
     }
 
     const playerChoice = () => {
-        let choice = prompt("What choice");
-        console.log(choice);
         return choice;
+    }
+
+    const listenForChoice = (ch) => {
+        choice = ch;
     }
 
     return isComputer ?
         {makeChoice: computerChoice} :
-        {makeChoice: playerChoice}
+        {makeChoice: playerChoice,
+        listenForChoice}
 }
-
 
 const Game = () => {
     const pA = Player(false);
@@ -30,213 +34,127 @@ const Game = () => {
 
     const rounds = [];
 
-    const doRound = () => {
-        let result = pA.makeChoice() - pB.makeChoice();
-        if (result < 0) {result += 3;};
-
-        rounds.push(result);
-        return result;
+    const addRound = round => {
+        rounds.push(round);
     }
 
     const getAwins = () => {
-        return rounds.filter(x => x == 1).length;
+        return rounds.filter(x => x.result == 1).length;
     }
 
     const getBwins = () => {
-        return rounds.filter(x => x == 2).length;
+        return rounds.filter(x => x.result == 2).length;
     }
 
     return {
-        doRound,
+        pA,
+        pB,
+        addRound,
         getAwins,
         getBwins
     }
 }
 
-const play = (to_n) => {
-    let game = Game();
-    let r;
-    while (game.getAwins() < to_n & game.getBwins() < to_n) {
-        r = game.doRound();
+const Round = (playerAChoice, playerBChoice) => {
+    let result = playerAChoice - playerBChoice;
+    if (result < 0) {result += 3};
+
+    return {result, playerAChoice, playerBChoice}
+}
+
+const Display = (to_n) => {
+    const rock = document.querySelector("#rock");
+    const paper = document.querySelector("#paper");
+    const scissors = document.querySelector("#scissors");
+    const buttons = [paper, scissors, rock];
+
+    const root = document.querySelector(":root");
+    root.style.setProperty("--n", to_n);
+
+    const p1pts = document.querySelector("#playerPoints");
+    const p2pts = document.querySelector("#computerPoints");
+
+    const addPoint = (result) => {
+        let point = document.createElement("div");
+        point.classList.add("point");
+        if (result == 1) {
+            p1pts.appendChild(point);
+        }
+        if (result == 2) {
+            p2pts.appendChild(point);
+        }
     }
-    if (game.playerWins == to_n) {
-        console.log("Player won");
+
+    const markButton = (player, choice) => {
+        let b = buttons[choice]; // value matched but not hard-coded to button
+        b.classList.add(player);
     }
-    else {
-        console.log("Computer won");
+
+    const clearButtons = () => {
+        for (let b of buttons) {
+            for (let p of ["player", "computer"]) {
+                if (b.classList.contains(p)) {
+                    b.classList.remove(p);
+                }
+            }
+        }
     }
+
+    const winner = document.querySelector("#winner");
+
+    const declareWinner = (string) => {
+        winner.classList.add("won");
+        winner.textContent = string;
+        for (let b of buttons) {
+            b.disabled = true;
+        }
+    }
+
+    return {
+        buttons,
+        addPoint,
+        markButton,
+        clearButtons,
+        declareWinner
+    }
+}
+
+const play = () => {
+    let to_n = alert("Play to how many points?");
+
+    const game = Game();
+    const display = Display(to_n);
+
+    // Round logic that's triggered upon clicking a button
+
+    const playRound = (value) => {
+        display.clearButtons();
+
+        let r = Round(value, game.pB.makeChoice());
+        game.addRound(r);
+
+        display.markButton("player", r.playerAChoice);
+        display.markButton("computer", r.playerBChoice);
+
+        display.addPoint(r.result);
+
+        if (game.getAwins() == to_n) {
+            display.declareWinner("You won!");
+        }
+        if (game.getBwins() == to_n) {
+            display.declareWinner("You lost! fucker");
+        }
+    }
+
+
+    for (let b of display.buttons) {
+        b.addEventListener("click", () => playRound(b.value));
+    }
+
+    return alert("Play again?");
+
 };
 
-const gameDisplay = () => {
-    
-}
-
-play(3);
-
-/* const choices = {
-    'rock': 2,
-    'scissors': 1,
-    'paper': 0
-}
-
-function displayChoice(value) {
-    for (let choice in choices) {
-        if (value == choices[choice]) {
-            return choice;
-        }
-    }
-    return null;
-}
-
-function computerSelect() {
-    return Math.floor(Math.random()*3);
-}
-
-function validatePlayerInput(playerInput) {
-    playerInput = playerInput.toLowerCase();
-
-    for (let choice in choices) {
-        if (playerInput == choice) {
-            return choices[choice]; // return the number representation of the choice
-        }
-    }
-    console.log("Error, your choice wasn't one of 'rock', 'paper', or 'scissors'")
-    return undefined;
-}
-
-function playRound(computerSel, playerSel) {
-    const tieString = "It's a tie!";
-    const compWin = "The computer won this round!";
-    const playerWin = "You won this round!";
-
-    const resultList = document.querySelector("#results");
-
-    let outcome = computerSel - playerSel;
-    outcome = outcome < 0 ? outcome + 3 : outcome;
-
-    let strToLog;
-    switch (outcome) {
-        case 0:
-            strToLog = tieString;
-            break;
-        case 1: 
-            strToLog = compWin;
-            break;
-        case 2: 
-            strToLog = playerWin;
-            break;
-        default:
-            console.log("Uh oh, something went wrong.")
-            return null;
-    }
-    let resultItem = document.createElement("li");
-    resultItem.textContent = strToLog;
-
-    console.log(strToLog);
-    resultList.appendChild(resultItem);
-
-    return outcome;
-}
-
-function updateWins(playerWins, computerWins) {
-    const player = document.querySelector("#player");
-    const computer = document.querySelector("#computer");
-
-    player.textContent = "Player wins: " + playerWins;
-    computer.textContent = "Computer wins: " + computerWins;
-
-}
-
-
-const game() {
-    let playerWins = 0;
-    let computerWins = 0;
-
-    let userRock = document.querySelector("#rock");
-    let userScis = document.querySelector("#scissors");
-    let userPape = document.querySelector("#paper");
-
-    let winner;
-
-    let updateWinCount = (outcome) => {
-        if (outcome == 1) {computerWins++};
-        if (outcome == 2) {playerWins++};
-    };
-
-    let updateEvent = choice => {
-        let outcome = playRound(choice, computerSelect());
-        updateWinCount(outcome);
-        updateWins(playerWins, computerWins);
-        if (!winner & playerWins == 5) {
-            winner = "Player";
-        };
-        if (!winner & computerWins == 5) {
-            winner = "Computer";
-        };
-        if (winner) {
-            const winDiv = document.querySelector("#hasWon");
-            winDiv.textContent = winner + " has won!";
-        };
-    }
-
-    userRock.addEventListener('click', () => {
-        let outcome = playRound(2, computerSelect());
-        updateWinCount(outcome);
-        updateWins(playerWins, computerWins);
-        if (!winner & playerWins == 5) {
-            winner = "Player";
-        };
-        if (!winner & computerWins == 5) {
-            winner = "Computer";
-        };
-        if (winner) {
-            const winDiv = document.querySelector("#hasWon");
-            winDiv.textContent = winner + " has won!";
-        };
-    }); 
-    userScis.addEventListener('click', () => {
-        let outcome = playRound(1, computerSelect());
-        updateWinCount(outcome);
-        updateWins(playerWins, computerWins);
-        if (!winner & playerWins == 5) {
-            winner = "Player";
-        };
-        if (!winner & computerWins == 5) {
-            winner = "Computer";
-        };
-        if (winner) {
-            const winDiv = document.querySelector("#hasWon");
-            winDiv.textContent = winner + " has won!";
-        };
-    }); 
-    userPape.addEventListener('click', () => {
-        let outcome = playRound(0, computerSelect());
-        updateWinCount(outcome);
-        updateWins(playerWins, computerWins);
-        if (!winner & playerWins == 5) {
-            winner = "Player";
-        };
-        if (!winner & computerWins == 5) {
-            winner = "Computer";
-        };
-        if (winner) {
-            const winDiv = document.querySelector("#hasWon");
-            winDiv.textContent = winner + " has won!";
-        };
-    }); 
-} 
-
-game()
-
-*/
-
-/*
-rock 2
-scissors 1
-paper 0
-
-A - B == 1 mod 3 > A won B lost
-A - B == 0 mod 3 > tie
-A - B == 2 mod 3 > B won A lost
-
-*/
+let r;
+do {r = play()}
+while (r);
