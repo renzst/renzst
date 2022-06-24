@@ -8,24 +8,32 @@
 } */
 
 const Player = (isComputer) => {
-    let choice;
+    let hardMode = false;
 
-    const computerChoice = () => {
-        return Math.floor(Math.random()*3);
+    const toggleHardMode = () => {
+        hardMode = !hardMode;
+    }
+    
+    const makeChoice = (choice) => {
+        let evaluation;
+        if (isComputer) {
+            if (hardMode) {
+                evaluation = choice - 2
+                if (evaluation < 0) {
+                    evaluation += 3;
+                }
+            }
+            else {
+                evaluation = Math.floor(Math.random()*3);
+            }
+        }
+        else {
+            evaluation = choice;
+        }
+        return evaluation;
     }
 
-    const playerChoice = () => {
-        return choice;
-    }
-
-    const listenForChoice = (ch) => {
-        choice = ch;
-    }
-
-    return isComputer ?
-        {makeChoice: computerChoice} :
-        {makeChoice: playerChoice,
-        listenForChoice}
+    return {toggleHardMode, makeChoice}
 }
 
 const Game = () => {
@@ -110,12 +118,23 @@ const Display = (to_n) => {
         }
     }
 
+    const hardMode = (() => {
+        const container = document.querySelector("#devil");
+        const button = document.querySelector("#hardmode");
+        const toggle = () => {
+            container.classList.toggle("active");
+        }
+
+        return {container, button, toggle}
+    })();
+
     return {
         buttons,
         addPoint,
         markButton,
         clearButtons,
-        declareWinner
+        declareWinner,
+        hardMode,
     }
 }
 
@@ -132,12 +151,19 @@ const play = () => {
     const game = Game();
     const display = Display(to_n);
 
-    // Round logic that's triggered upon clicking a button
+    // Toggle hard mode
+    const toggleDevil = () => {
+        display.hardMode.toggle();
+        game.pB.toggleHardMode();
+    };
 
+    display.hardMode.button.addEventListener("click", () => toggleDevil());
+
+    // Round logic that's triggered upon clicking a button
     const playRound = (value) => {
         display.clearButtons();
 
-        let r = Round(value, game.pB.makeChoice());
+        let r = Round(game.pA.makeChoice(value), game.pB.makeChoice(value));
         game.addRound(r);
 
         display.markButton("player", r.playerAChoice);
@@ -147,9 +173,11 @@ const play = () => {
 
         if (game.getAwins() == to_n) {
             display.declareWinner("You won!");
+            return;
         }
         if (game.getBwins() == to_n) {
             display.declareWinner("You lost! fucker");
+            return;
         }
     }
 
