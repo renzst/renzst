@@ -119,8 +119,15 @@ const Display = (to_n) => {
     }
 }
 
+function isValid(n) {
+    n = Math.floor(+n);
+    return n > 0 & n < 50;
+}
+
 const play = () => {
-    let to_n = alert("Play to how many points?");
+    let to_n;
+    do {to_n = prompt("Play to how many points?");}
+    while (!isValid(to_n));
 
     const game = Game();
     const display = Display(to_n);
@@ -146,15 +153,10 @@ const play = () => {
         }
     }
 
-
     for (let b of display.buttons) {
         b.addEventListener("click", () => playRound(b.value));
     }
 
-    return alert("Play again?");
-
 };
 
-let r;
-do {r = play()}
-while (r);
+play();

@@ -124,6 +124,7 @@
     top: 50%;
     transform: translate(-50%, -50%);
     left: 50%;
+    z-index: 2;
 
     background-color: white;
     border: 1px solid grey;
@@ -138,4 +139,14 @@
 
 #winner.won {
     display: initial;
+}
+
+@media only screen and (max-width: 768px) {
+    :root {
+        --dist: 100px;
+    }
+
+    #buttons button {
+        font-size: 150%;
+    }
 }
