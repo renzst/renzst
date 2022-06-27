@@ -32,7 +32,6 @@ const Grid = () => {
     window.addEventListener("resize", () => {
         height = grid.offsetHeight;
         width = grid.offsetWidth;
-        console.log(height, width);
     })
 
     const addCell = (fn, ...classes) => {
@@ -99,7 +98,6 @@ const main = () => {
 
     display.params.submit.addEventListener("click", () => {
         let params = display.params.getValues();
-        console.log(params);
         display.clearGrid();
         let gridProp = display.calcGrid(params.resolution);
         display.setGrid(gridProp);
