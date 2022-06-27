@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etch-a-Sketch</title>
+    <link rel="stylesheet" href="etch.css">
+</head>
+<body>
+    <main>
+        <div class="sketchGrid">
+            <menu aria-label="toolbar" id="sketchGridMenu">
+                <label for="resolution">Resolution:</label>
+                <select name="resolution" id="resolution">
+                    <option value="1">Lowest</option>
+                    <option value="2">Low-medium</option>
+                    <option value="3">Medium</option>
+                    <option value="4">Medium-High</option>
+                    <option value="5">High</option>
+                </select>
+                <label for="functions">Etch type</label>
+                <select name="functions" id="functions">
+                    <option value="Standard">Standard</option>
+                    <option value="Rainbow">Rainbow</option>
+                    <option value="Darken">Darken</option>
+                </select>
+                <button id="cell-submit">Submit</button>
+            </menu>
+        </div>
+    </main>
+    <script src="etch.js"></script>
+</body>
+</html>
