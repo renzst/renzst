@@ -1,8 +1,8 @@
 // Todo app
 // Renz Torres, Odin Project
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs'); // need to find something different for web
+const path = require('path'); // need to find something different for web
 
 
 const globalTags = new Set();
@@ -56,23 +56,35 @@ const ID = (() => {
     return {get}
 })();
 
-const Todo = (content, modified = Date.now(), created = Date.now(), completed = false, ...tags) => {
-    let id = ID.get();
-    content = content.slice(0, 140);
+const Todo = (title, description = undefined, dueDate = undefined, modified = Date.now(), created = Date.now(), completed = false, priority = 3, ...tags) => {
+    const id = ID.get();
+    title = title.slice(0, 140);
     let tagLibrary = TagLibrary(...tags);
+    let checklist = Library();
 
     const modify = () => {
         modified = Date.now();
     }
 
-    const get = () => {
-        return {
+    const get = (arg) => {
+        const returnable = {
             id,
-            content,
+            title,
+            description,
+            dueDate,
+            priority,
+            checklist,
             tags: tagLibrary.get(),
             created,
             modified,
             completed
+        };
+
+        if (arg in returnable) {
+            return returnable[arg];
+        }
+        else {
+            return returnable;
         }
     };
 
@@ -125,6 +137,14 @@ const Library = () => {
         todos = todos.filter(x => x.id != id);
     }
 
+    const markAllCompleted = () => {
+        for (let todo of todos) {
+            if (!todo.get("completed")) {
+                todo.toggleCompleted();
+            }
+        }
+    }
+
     const exportToJSON = (filePath = ".", name_ = "todo.json") => {
         let exportData = getAll(info = true);
         for (let d of exportData) {
@@ -139,21 +159,20 @@ const Library = () => {
         }
     }
 
-    const importFromJSON = (file) => {
+/*     const importFromJSON = (file) => {
         let data = fs.readFileSync(file, "utf-8");
         data = JSON.parse(data);
 
         for (let obj of data) {
-            if (!("content" in obj)) {continue;} // i.e. not a valid todo obj
+
             if (!("created" in obj)) {obj.created = Date.now();}
             if (!("modified" in obj)) {obj.modified = Date.now();}
             if (!("completed" in obj)) {obj.completed = false;}
-            let newTodo = Todo(obj.content, obj.modified, obj.created, obj.completed, ...obj.tags);
-            console.log(newTodo);
+            //let newTodo = Todo(obj.content, obj.modified, obj.created, obj.completed, ...obj.tags);
             add(newTodo);
         }
 
-    }
+    } */
 
     return {
         count,
@@ -162,23 +181,13 @@ const Library = () => {
         getByTag,
         add,
         drop,
+        markAllCompleted,
         exportToJSON,
-        importFromJSON
+ /*        importFromJSON */
     }
 }
 
 const main = () => {
-    let library = Library();
-
-    let todo = Todo("Lorem ipsub", undefined, undefined, undefined, "gay", "really gay");
-    library.add(todo);
-
-    library.exportToJSON();
-    console.log(library.getAll(info = true));
-
-    library.importFromJSON("todo.json");
-
-    console.log(library.getAll(info = true));
 }
 
 main();
