@@ -97,7 +97,7 @@ const Todo = (title, description = undefined,
         modify();
         if (title != title_) {title = title_.slice(0,140);}
         if (description != description_) {description = description_}
-        if (dueDate != dueDate_) {dueDate = dueDate_}
+        if (dueDate != dueDate_) {dueDate = new Date(dueDate_)}
         if (priority != priority_) {priority = priority_}
     }
 
@@ -206,6 +206,12 @@ const AllView = (todos) => {
     const container = document.createElement("div");
     container.classList.add("view-all");
 
+    const addDiv = document.createElement("div");
+    addDiv.classList.add("add-new");
+    const addButton = document.createElement("button");
+    addButton.textContent = "➕";
+    addDiv.appendChild(addButton);
+
     const title = document.createElement("h1");
     title.textContent = "Library";
 
@@ -220,15 +226,18 @@ const AllView = (todos) => {
         let todoP = document.createElement("p");
         todoP.textContent = todo.data.title;
 
+        let menu = document.createElement("menu");
         let completeButton = document.createElement("button");
         completeButton.textContent = todo.data.completed ? "✅" : "✔️";
 
         let viewMoreButton = document.createElement("button");
-        viewMoreButton.textContent = "View";
+        viewMoreButton.textContent = "🔍";
+
+        menu.appendChild(viewMoreButton);
+        menu.appendChild(completeButton);
 
         todoDiv.appendChild(todoP);
-        todoDiv.appendChild(completeButton);
-        todoDiv.appendChild(viewMoreButton);
+        todoDiv.appendChild(menu);
 
         todoList.appendChild(todoDiv);
 
@@ -245,12 +254,14 @@ const AllView = (todos) => {
     })
 
     container.appendChild(title);
+    container.appendChild(addDiv);
     container.appendChild(todoList);
     
     return {
         container,
         todoList,
         todoElements: todoDivs,
+        addButton,
         type: "view-all",
     }
 
@@ -267,51 +278,55 @@ const SingleView = (todo) => {
 
     const title = document.createElement("h1");
     title.textContent = todo.data.title;
+    title.classList.add("title");
 
     const description = document.createElement("p");
+    description.classList.add("description");
     description.textContent = todo.data.description;
 
-    const completeButton = document.createElement("button");
-    completeButton.textContent = todo.data.completed ? "✅" : "✔️";
-
-    const tags = document.createElement("div");
+    const tags = document.createElement("ul");
     tags.classList.add("tags");
-    const tagList = document.createElement("ul");
     for (let tag of todo.data.tags) {
         let tagItem = document.createElement("li");
         tagItem.textContent = tag;
-        tagList.appendChild(tagItem);
+        tags.appendChild(tagItem);
     }
-    tags.appendChild(tagList);
 
     const priority = document.createElement("div");
+    priority.classList.add("priority");
+
     const dueDate = document.createElement("p");
-    dueDate.textContent = `Due: ${todo.data.dueDate}`;
+    dueDate.classList.add("due-date");
+    dueDate.textContent = `Due: ${todo.functions.get("dueDate").toISOString().slice(0,10)}`;
     const priorityLevel = document.createElement("p");
     priorityLevel.textContent = `Priority: ${todo.data.priority}`;
     priority.appendChild(dueDate);
     priority.appendChild(priorityLevel);
 
     const metadata = document.createElement("div");
+    metadata.classList.add("metadata");
     const metaCreated = document.createElement("p");
     metaCreated.classList.add("created");
-    metaCreated.textContent = `Created: ${todo.data.created}`
+    metaCreated.textContent = `Created: ${todo.data.created.toISOString().slice(0,10)}`
     const metaModified = document.createElement("p");
     metaModified.classList.add("modified");
-    metaModified.textContent = `Last modified: ${todo.data.modified}`;
+    metaModified.textContent = `Last modified: ${todo.data.modified.toISOString().slice(0,10)}`;
     metadata.appendChild(metaCreated);
     metadata.appendChild(metaModified);
 
+    const menu = document.createElement("menu");
+    const completeButton = document.createElement("button");
+    completeButton.textContent = todo.data.completed ? "✅" : "✔️";
+
     const editButton = document.createElement("button");
-    editButton.textContent = "Edit";
+    editButton.textContent = "✏️";
 
     const returnButton = document.createElement("button");
-    returnButton.textContent = "Return to library";
+    returnButton.textContent = "⬆️";
 
+    for (let b of [completeButton, editButton, returnButton]) {menu.appendChild(b)};
 
-    for (let element of [title, description, completeButton, tags, priority, metadata, editButton, returnButton]) {
-        container.appendChild(element);
-    }
+    for (let element of [title, description, priority, tags, menu, metadata]) {container.appendChild(element)};
 
     return {
         container,
@@ -337,42 +352,47 @@ const EditView = (todo) => {
     const container = document.createElement("div");
     container.classList.add("view-edit");
 
-    const titleLabel = document.createElement("label");
+/*     const titleLabel = document.createElement("label");
     titleLabel.for = "title";
-    titleLabel.textContent = "Title";
+    titleLabel.textContent = "Title"; */
     const title = document.createElement("input");
     title.id = "Title";
+    title.classList.add("title");
     title.value = todo.get("title");
 
-    const descriptionLabel = document.createElement("label");
+/*     const descriptionLabel = document.createElement("label");
     descriptionLabel.for = "description";
-    descriptionLabel.textContent = "Description";
-    const description = document.createElement("input");
+    descriptionLabel.textContent = "Description"; */
+    const description = document.createElement("textarea");
     description.id = "Description";
+    description.classList.add("description");
+    description.size = 50;
     description.value = todo.get("description");
 
-    const dueDateLabel = document.createElement("label");
+/*     const dueDateLabel = document.createElement("label");
     dueDateLabel.for = "duedate";
-    dueDateLabel.textContent = "Due Date";
+    dueDateLabel.textContent = "Due Date"; */
     const dueDate = document.createElement("input");
     dueDate.type = "date";
     dueDate.id = "duedate";
+    dueDate.classList.add("due-date");
     dueDate.value = todo.get("dueDate").toISOString().slice(0,10);
 
-    const priorityLabel = document.createElement("label");
+/*     const priorityLabel = document.createElement("label");
     priorityLabel.for = "priority";
-    priorityLabel.textContent = "Priority";
+    priorityLabel.textContent = "Priority"; */
     const priority = document.createElement("input");
     priority.type = "number";
     priority.min = 1;
     priority.max = 5;
     priority.id = "priority";
+    priority.classList.add("priority");
     priority.value = todo.get("priority");
 
     const submitButton = document.createElement("button");
-    submitButton.textContent = "Submit";
+    submitButton.textContent = "🔃";
 
-    for (let element of [titleLabel, title, descriptionLabel, description, dueDateLabel, dueDate, priorityLabel, priority, submitButton]) {
+    for (let element of [title, description, dueDate, priority, submitButton]) {
         container.appendChild(element);
     }
 
@@ -391,6 +411,66 @@ const EditView = (todo) => {
     };
 }
 
+const AddView = () => {
+    const container = document.createElement("div");
+    container.classList.add("add-new");
+
+/*     const titleLabel = document.createElement("label");
+    titleLabel.for = "title";
+    titleLabel.textContent = "Title"; */
+    const title = document.createElement("input");
+    title.id = "Title";
+    title.classList.add("title");
+    title.value = "Untitled";
+
+/*     const descriptionLabel = document.createElement("label");
+    descriptionLabel.for = "description";
+    descriptionLabel.textContent = "Description"; */
+    const description = document.createElement("textarea");
+    description.id = "Description";
+    description.classList.add("description");
+    description.size = 50;
+
+/*     const dueDateLabel = document.createElement("label");
+    dueDateLabel.for = "duedate";
+    dueDateLabel.textContent = "Due Date"; */
+    const dueDate = document.createElement("input");
+    dueDate.type = "date";
+    dueDate.id = "duedate";
+    dueDate.classList.add("due-date");
+    let tempVal = new Date();
+    dueDate.value = tempVal.toISOString().slice(0,10);
+
+/*     const priorityLabel = document.createElement("label");
+    priorityLabel.for = "priority";
+    priorityLabel.textContent = "Priority"; */
+    const priority = document.createElement("input");
+    priority.type = "number";
+    priority.min = 1;
+    priority.max = 5;
+    priority.id = "priority";
+    priority.classList.add("priority");
+    priority.value = 3;
+
+    const submitButton = document.createElement("button");
+    submitButton.textContent = "🔃";
+
+    for (let element of [title, description, dueDate, priority, submitButton]) {
+        container.appendChild(element);
+    }
+
+    return {
+        container,
+        title,
+        description,
+        dueDate,
+        priority,
+        submitButton,
+        type: "add-new",
+    };
+}
+
+
 const Controller = (library) => {
     function clear() {
         for (let element of document.querySelectorAll("main > *")) {
@@ -405,6 +485,9 @@ const Controller = (library) => {
         clear();
         if (view == "view-all") {
             currentView = AllView(library.getAll());
+            currentView.addButton.addEventListener("click", () => {
+                setView("add-new");
+            })
             for (let t of currentView.todoElements) {
                 t.presentation.button.addEventListener("click", () => {
                     t.functions.toggleCompleted();
@@ -419,10 +502,11 @@ const Controller = (library) => {
         else if (view == "view-single") {
             currentView = SingleView(library.get(args));
             let t = currentView.todo;
+            let c = currentView
             currentView.completeButton.addEventListener("click", () => {
                 t.functions.toggleCompleted();
-                currentView.completeButton.textContent = t.getData("completed") ? "✅" : "✔️";
-                currentView.modified.textContent = `Last modified: ${t.getData("modified")}`;
+                c.completeButton.textContent = t.getData("completed") ? "✅" : "✔️";
+                c.modified.textContent = `Last modified: ${t.getData("modified").toISOString().slice(0,10)}`;
             });
             currentView.editButton.addEventListener("click", () => {
                 setView("edit", t.functions.id);
@@ -443,6 +527,20 @@ const Controller = (library) => {
                 currentView.todo.functions.edit(newTitle, newDesc, newDate, newPriority);
 
                 setView("view-single", currentView.todo.functions.get("id"));
+            })
+        }
+
+        else if (view == "add-new") {
+            currentView = AddView();
+            currentView.submitButton.addEventListener("click", () => {
+                let newTitle = currentView.title.value;
+                let newDesc = currentView.description.value;
+                let newDate = currentView.dueDate.value;
+                let newPriority = currentView.priority.value;
+
+                library.add(Todo(newTitle, newDesc, newDate, newPriority));
+                
+                setView("view-all");
             })
         }
 
