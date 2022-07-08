@@ -42,6 +42,10 @@
             text-align: center;
         }
 
+        menu.add-new {
+            justify-content: center;
+        }
+
         .todo-item {
             padding: 0 0.5em;
             margin: 1em 0;
@@ -94,15 +98,16 @@
             list-style: none;
             display: flex;
             padding: 0;
-        }
-
-        .tags > li:first-child::before {
-            content: "Tags: ";
-            margin: 0;
+            text-align: center;
         }
 
         .tags > li {
             margin-right: 1em;
+            border-bottom: 1px solid #734F96;
+        }
+
+        .tags > li:hover, .tags > li:active {
+            border-bottom-width: 3px;
         }
 
         .metadata {
@@ -114,6 +119,13 @@
             display: block;
             margin-bottom: 0.5em;
             width: 90%;
+            background-color: #E6E6FA;
+            border: none;
+            border-bottom: 1px solid #734F96
+        }
+
+        .view-edit > input:focus, .view-edit > textarea:focus, .add-new > input:focus, .add-new > textarea:focus {
+            border-bottom-width: 5px;
         }
 
         .view-edit > .title, .add-new > .title {

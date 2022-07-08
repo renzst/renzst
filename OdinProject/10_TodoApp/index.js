@@ -5,11 +5,35 @@
 const path = require('path'); // need to find something different for web
  */
 
-const globalTags = new Set();
+const globalTags = (() => {
+    let list = new Set();
+    const get = () => {
+        return Array.from(list);
+    }
+
+    const update = (library) => {
+        let newList = new Set();
+        for (let todo of library.getAll()) {
+            let tempList = todo.get("tags");
+            if (tempList.length) {
+                for (let item of tempList) {
+                    newList.add(item);
+                }
+            }
+        }
+        list = newList;
+    }
+
+    return {
+        list,
+        get,
+        update
+    }
+})();
 
 const Tag = (content) => {
     content = content.toLowerCase();
-    globalTags.add(content);
+    globalTags.list.add(content);
 
     return content;
 }
@@ -17,7 +41,12 @@ const Tag = (content) => {
 const TagLibrary = (...tags) => {
     const list = new Set();
 
-    const get = () => {return list}
+    const get = () => {return Array.from(list)}
+
+    const getAsString = () => {
+        let array = get();
+        return array.length ? array.join() : "";
+    }
 
     const add = (...tags_) => {
         for (let tag_ of tags_) {
@@ -33,15 +62,38 @@ const TagLibrary = (...tags) => {
         }
     }
 
+    const setFromString = (str) => {
+        let userTags = str.split(",");
+        if (userTags.length && !list.size) {
+            for (let t of userTags) {list.add(t)}
+        }
+        else if (!userTags.length && list.size) {
+            list.forEach(x => list.delete(x));
+        }
+        else if (userTags.length && list.size) {
+            // delete list tags not contained in userTags
+            list.forEach(x => {
+                if (!userTags.includes(x)) {list.delete(x)}
+            })
+            // add userTag not contained in list
+            userTags.forEach(x => {
+                if (!list.has(x)) {list.add(x)};
+            })
+        }
+        else {}
+    }
+
     const size = () => {
         return list.size;
     }
 
     return {
         get,
+        getAsString,
         add,
         drop,
         size,
+        setFromString,
     }
 }
 
@@ -80,6 +132,7 @@ const Todo = (title, description = undefined,
             priority,
             checklist,
             tags: tagLibrary.get(),
+            tagsAsString: tagLibrary.getAsString(),
             created,
             modified,
             completed
@@ -93,12 +146,13 @@ const Todo = (title, description = undefined,
         }
     };
 
-    const edit = (title_, description_, dueDate_, priority_) => {
+    const edit = (title_, description_, dueDate_, priority_, tags_) => {
         modify();
-        if (title != title_) {title = title_.slice(0,140);}
-        if (description != description_) {description = description_}
-        if (dueDate != dueDate_) {dueDate = new Date(dueDate_)}
-        if (priority != priority_) {priority = priority_}
+        if (title != title_) {title = title_.slice(0,140)};
+        if (description != description_) {description = description_};
+        if (dueDate != dueDate_) {dueDate = new Date(dueDate_)};
+        if (priority != priority_) {priority = priority_};
+        tagLibrary.setFromString(tags_);
     }
 
     const toggleCompleted = () => {
@@ -128,15 +182,12 @@ const Library = () => {
         return todos.filter(x => {return x.id == id})[0];
     }
 
-    const getByTag = (...tags) => {
-        return getAll().filter(x => {
-            for (let t of tags) {
-                if (x.tags.has(t)) {
-                    return true;
-                }
-            }
-            return false;
-        })
+    const getByTag = (tag) => {
+        let returnable = getAll().filter(x => {
+            return x.get("tags").includes(tag);
+        });
+        return returnable;
+
     }
 
     const add = (todo) => todos.push(todo);
@@ -145,42 +196,38 @@ const Library = () => {
         todos = todos.filter(x => x.id != id);
     }
 
-    const markAllCompleted = () => {
+/*     const markAllCompleted = () => {
         for (let todo of todos) {
             if (!todo.get("completed")) {
                 todo.toggleCompleted();
             }
         }
+    } */
+
+    const setLocalStorage = () => {
+        let storables = getAll(true);
+        if (storables.length) {
+            localStorage.setItem('todos', JSON.stringify(storables));
+        }
     }
 
-/*     const exportToJSON = (filePath = ".", name_ = "todo.json") => {
-        let exportData = getAll(info = true);
-        for (let d of exportData) {
-            d.tags = [...d.tags];
+    const getLocalStorage = () => {
+        let imp = localStorage.getItem('todos');
+        if (imp) {
+            imp = JSON.parse(imp);
+            if (confirm("Override existing data?")) {
+                for (let t of todos) {
+                    drop(t.id);
+                }
+            }
+            for (let todo of imp) {
+                add(Todo(todo.title, todo.description, todo.dueDate,
+                    todo.modified, todo.created, todo.completed,
+                    todo.priority, ...todo.tags))
+            }
         }
 
-        exportData = JSON.stringify(exportData);
-
-
-        if (fs.existsSync(filePath)) {
-            fs.writeFileSync(path.join(filePath, name_), exportData);
-        }
-    } */
-
-/*     const importFromJSON = (file) => {
-        let data = fs.readFileSync(file, "utf-8");
-        data = JSON.parse(data);
-
-        for (let obj of data) {
-
-            if (!("created" in obj)) {obj.created = Date.now();}
-            if (!("modified" in obj)) {obj.modified = Date.now();}
-            if (!("completed" in obj)) {obj.completed = false;}
-            //let newTodo = Todo(obj.content, obj.modified, obj.created, obj.completed, ...obj.tags);
-            add(newTodo);
-        }
-
-    } */
+    }
 
     return {
         count,
@@ -189,104 +236,135 @@ const Library = () => {
         getByTag,
         add,
         drop,
-        markAllCompleted,
-/*         exportToJSON,
-        importFromJSON */
+        setLocalStorage,
+        getLocalStorage,
     }
 }
 
 const AllView = (todos) => {
-    todos = todos.map(x => {
-        return {
-            functions: x,
-            data: x.get()
-        }
-    });
-
     const container = document.createElement("div");
     container.classList.add("view-all");
 
-    const addDiv = document.createElement("div");
-    addDiv.classList.add("add-new");
+    const tags = document.createElement("ul");
+    tags.classList.add("tags");
+    tags.textContent = "Tags:  ";
+    let tagList = globalTags.get().sort();
+    for (let tag of tagList) {
+        let tagItem = document.createElement("li");
+        let tagA = document.createElement("a");
+        tagA.textContent = tag;
+        tagItem.appendChild(tagA);
+        tags.appendChild(tagItem);
+    }
+    const tagAll = document.createElement("li");
+    const tagAAll = document.createElement("a");
+    tagAAll.textContent = "VIEW ALL";
+    tagAll.appendChild(tagAAll);
+    tagAll.classList.add("VIEWALL");
+    tags.appendChild(tagAll);
+
+    const menu = document.createElement("menu");
+    menu.classList.add("add-new");
     const addButton = document.createElement("button");
     addButton.textContent = "➕";
-    addDiv.appendChild(addButton);
+    const saveButton = document.createElement("button");
+    saveButton.textContent = "💾"
+    const importButton = document.createElement("button");
+    importButton.textContent = "⤴️";
+
+    for (let b of [addButton, saveButton, importButton]) {menu.appendChild(b)};
 
     const title = document.createElement("h1");
-    title.textContent = "Library";
+    title.textContent = "All Todos";
 
     const todoList = document.createElement("div");
     todoList.classList.add("todo-list");
 
-    const todoDivs = todos.map(todo => {
-        let todoDiv = document.createElement("div");
-        todoDiv.id = todo.data.id;
-        todoDiv.classList.add("todo-item");
+    let todoDivs;
+    if (!todos.length) {
+        todoDivs = document.createElement("div");
+        todoDivs.textContent = "Shouldn't you be working?"
+        todoList.append(todoDivs);
+    }
+    else {
+        todoDivs = todos.map(todo => {
+            let todoDiv = document.createElement("div");
+            todoDiv.id = todo.id;
+            todoDiv.classList.add("todo-item");
 
-        let todoP = document.createElement("p");
-        todoP.textContent = todo.data.title;
+            let todoP = document.createElement("p");
+            let tit = todo.get("title");
+            todoP.textContent = tit == "" ? "[untitled]" : tit
 
-        let menu = document.createElement("menu");
-        let completeButton = document.createElement("button");
-        completeButton.textContent = todo.data.completed ? "✅" : "✔️";
+            let menu = document.createElement("menu");
+            let completeButton = document.createElement("button");
+            completeButton.textContent = todo.get("completed") ? "✅" : "✔️";
 
-        let viewMoreButton = document.createElement("button");
-        viewMoreButton.textContent = "🔍";
+            let viewMoreButton = document.createElement("button");
+            viewMoreButton.textContent = "🔍";
 
-        menu.appendChild(viewMoreButton);
-        menu.appendChild(completeButton);
+            let deleteButton = document.createElement("button");
+            deleteButton.textContent = "❌"
 
-        todoDiv.appendChild(todoP);
-        todoDiv.appendChild(menu);
+            for (let b of [completeButton, viewMoreButton, deleteButton]) {menu.appendChild(b)};
 
-        todoList.appendChild(todoDiv);
+            todoDiv.appendChild(todoP);
+            todoDiv.appendChild(menu);
 
-        return {
-            functions: todo.functions,
-            getData: todo.functions.get,
-            presentation: {
+            todoList.appendChild(todoDiv);
+
+            return {
+                todo,
                 div: todoDiv,
                 text: todoP.textContent,
-                button: completeButton,
-                viewMore: viewMoreButton,
+                menu: {
+                    complete: completeButton,
+                    view: viewMoreButton,
+                    delete: deleteButton,
+                }
             }
-        }
-    })
+        })
+    }
 
-    container.appendChild(title);
-    container.appendChild(addDiv);
-    container.appendChild(todoList);
+    for (let element of [title, tags, menu, todoList]) {
+        container.appendChild(element);
+    }
     
     return {
         container,
+        title,
+        tags,
         todoList,
         todoElements: todoDivs,
-        addButton,
+        menu : {
+            add: addButton,
+            save: saveButton,
+            import: importButton,
+            viewAll: tagAAll,
+        },
         type: "view-all",
     }
 
 }
 
 const SingleView = (todo) => {
-    todo = {
-        functions: todo,
-        data: todo.get(),
-    };
-
     const container = document.createElement("div");
     container.classList.add("view-single");
 
     const title = document.createElement("h1");
-    title.textContent = todo.data.title;
+    let tit = todo.get("title");
+    title.textContent = tit == "" ? "[untitled]" : tit;
     title.classList.add("title");
 
     const description = document.createElement("p");
     description.classList.add("description");
-    description.textContent = todo.data.description;
+    let desc = todo.get("description");
+    description.textContent = desc == "" ? "[no description]" : desc;
 
     const tags = document.createElement("ul");
     tags.classList.add("tags");
-    for (let tag of todo.data.tags) {
+    tags.textContent = "Tags:  ";
+    for (let tag of todo.get("tags")) {
         let tagItem = document.createElement("li");
         tagItem.textContent = tag;
         tags.appendChild(tagItem);
@@ -297,9 +375,9 @@ const SingleView = (todo) => {
 
     const dueDate = document.createElement("p");
     dueDate.classList.add("due-date");
-    dueDate.textContent = `Due: ${todo.functions.get("dueDate").toISOString().slice(0,10)}`;
+    dueDate.textContent = `Due: ${todo.get("dueDate").toISOString().slice(0,10)}`;
     const priorityLevel = document.createElement("p");
-    priorityLevel.textContent = `Priority: ${todo.data.priority}`;
+    priorityLevel.textContent = `Priority: ${todo.get("priority")}`;
     priority.appendChild(dueDate);
     priority.appendChild(priorityLevel);
 
@@ -307,24 +385,27 @@ const SingleView = (todo) => {
     metadata.classList.add("metadata");
     const metaCreated = document.createElement("p");
     metaCreated.classList.add("created");
-    metaCreated.textContent = `Created: ${todo.data.created.toISOString().slice(0,10)}`
+    metaCreated.textContent = `Created: ${todo.get("created").toISOString().slice(0,10)}`
     const metaModified = document.createElement("p");
     metaModified.classList.add("modified");
-    metaModified.textContent = `Last modified: ${todo.data.modified.toISOString().slice(0,10)}`;
+    metaModified.textContent = `Last modified: ${todo.get("modified").toISOString().slice(0,10)}`;
     metadata.appendChild(metaCreated);
     metadata.appendChild(metaModified);
 
     const menu = document.createElement("menu");
     const completeButton = document.createElement("button");
-    completeButton.textContent = todo.data.completed ? "✅" : "✔️";
+    completeButton.textContent = todo.get("completed") ? "✅" : "✔️";
 
     const editButton = document.createElement("button");
     editButton.textContent = "✏️";
 
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "❌"
+
     const returnButton = document.createElement("button");
     returnButton.textContent = "⬆️";
 
-    for (let b of [completeButton, editButton, returnButton]) {menu.appendChild(b)};
+    for (let b of [completeButton, editButton, deleteButton, returnButton]) {menu.appendChild(b)};
 
     for (let element of [title, description, priority, tags, menu, metadata]) {container.appendChild(element)};
 
@@ -332,18 +413,18 @@ const SingleView = (todo) => {
         container,
         title,
         description,
-        completeButton,
         tags,
         priority,
         created: metaCreated,
         modified: metaModified,
         type: "view-single",
-        editButton,
-        returnButton,
-        todo: {
-            functions: todo.functions,
-            getData: todo.functions.get,
-        }
+        menu: {
+            edit: editButton,
+            return: returnButton,
+            complete: completeButton,
+            delete: deleteButton,
+        },
+        todo,
     };
 
 }
@@ -389,10 +470,15 @@ const EditView = (todo) => {
     priority.classList.add("priority");
     priority.value = todo.get("priority");
 
-    const submitButton = document.createElement("button");
-    submitButton.textContent = "🔃";
+    const tags = document.createElement("textarea");
+    tags.id = "tags";
+    tags.classList.add("tags");
+    tags.value = todo.get("tagsAsString");
 
-    for (let element of [title, description, dueDate, priority, submitButton]) {
+    const submitButton = document.createElement("button");
+    submitButton.textContent = "💾";
+
+    for (let element of [title, description, dueDate, priority, tags, submitButton]) {
         container.appendChild(element);
     }
 
@@ -402,6 +488,7 @@ const EditView = (todo) => {
         description,
         dueDate,
         priority,
+        tags,
         submitButton,
         todo: {
             functions: todo,
@@ -452,10 +539,14 @@ const AddView = () => {
     priority.classList.add("priority");
     priority.value = 3;
 
-    const submitButton = document.createElement("button");
-    submitButton.textContent = "🔃";
+    const tags = document.createElement("textarea");
+    tags.id = "tags";
+    tags.classList.add("tags");
 
-    for (let element of [title, description, dueDate, priority, submitButton]) {
+    const submitButton = document.createElement("button");
+    submitButton.textContent = "💾";
+
+    for (let element of [title, description, dueDate, priority, tags, submitButton]) {
         container.appendChild(element);
     }
 
@@ -465,6 +556,7 @@ const AddView = () => {
         description,
         dueDate,
         priority,
+        tags,
         submitButton,
         type: "add-new",
     };
@@ -483,37 +575,77 @@ const Controller = (library) => {
     let currentView;
     const setView = (view, ...args) => {
         clear();
-        if (view == "view-all") {
-            currentView = AllView(library.getAll());
-            currentView.addButton.addEventListener("click", () => {
+        if (view == "view-all" | view == "view-tag") {
+            if (view == "view-tag") {
+                currentView = AllView(library.getByTag(...args));
+                currentView.title.textContent = `"${args}" Todos`
+            }
+            else {
+                currentView = AllView(library.getAll());
+            }
+            currentView.menu.add.addEventListener("click", () => {
                 setView("add-new");
+            });
+            currentView.menu.save.addEventListener("click", () => {
+                library.setLocalStorage();
+            });
+            currentView.menu.import.addEventListener("click", () => {
+                library.getLocalStorage();
+                setView("view-all");
             })
-            for (let t of currentView.todoElements) {
-                t.presentation.button.addEventListener("click", () => {
-                    t.functions.toggleCompleted();
-                    t.presentation.button.textContent = t.getData("completed") ? "✅" : "✔️";
-                });
-                t.presentation.viewMore.addEventListener("click", () => {
-                    currentView = setView("view-single", t.getData("id"));
-                })
+
+            if (currentView.tags.children.length) {
+                for (let tagLi of currentView.tags.children) {
+                    let tagA = tagLi.querySelector("a");
+                    if (tagLi.classList.contains("VIEWALL")) {
+                        tagA.addEventListener("click", () => {
+                            setView("view-all");
+                        })
+                    }
+                    else (
+                        tagA.addEventListener("click", () => {
+                            setView("view-tag", tagA.textContent);
+                        })
+                    )
+                }
+            }
+            if (Array.isArray(currentView.todoElements)) {
+                for (let t of currentView.todoElements) {
+                    t.menu.complete.addEventListener("click", () => {
+                        t.toggleCompleted();
+                        t.menu.complete.textContent = t.todo.get("completed") ? "✅" : "✔️";
+                    });
+                    t.menu.view.addEventListener("click", () => {
+                        currentView = setView("view-single", t.todo.get("id"));
+                    });
+                    t.menu.delete.addEventListener("click", () => {
+                        library.drop(t.todo.get("id"));
+                        globalTags.update();
+                        currentView = setView("view-all");
+                    });
+                }
             }
         }
 
         else if (view == "view-single") {
             currentView = SingleView(library.get(args));
-            let t = currentView.todo;
-            let c = currentView
-            currentView.completeButton.addEventListener("click", () => {
-                t.functions.toggleCompleted();
-                c.completeButton.textContent = t.getData("completed") ? "✅" : "✔️";
-                c.modified.textContent = `Last modified: ${t.getData("modified").toISOString().slice(0,10)}`;
+
+            currentView.menu.complete.addEventListener("click", () => {
+                currentView.todo.toggleCompleted();
+                currentView.menu.complete.textContent = t.get("completed") ? "✅" : "✔️";
+                currentView.modified.textContent = `Last modified: ${t.get("modified").toISOString().slice(0,10)}`;
             });
-            currentView.editButton.addEventListener("click", () => {
-                setView("edit", t.functions.id);
+            currentView.menu.edit.addEventListener("click", () => {
+                setView("edit", t.id);
             });
-            currentView.returnButton.addEventListener("click", () => {
+            currentView.menu.return.addEventListener("click", () => {
                 setView("view-all");
             });
+            currentView.menu.delete.addEventListener("click", () => {
+                library.drop(t.id);
+                globalTags.update();
+                setView("view-all");
+            })
         }
 
         else if (view == "edit") {
@@ -523,8 +655,10 @@ const Controller = (library) => {
                 let newDesc = currentView.description.value;
                 let newDate = currentView.dueDate.value;
                 let newPriority = currentView.priority.value;
+                let newTags = currentView.tags.value;
 
-                currentView.todo.functions.edit(newTitle, newDesc, newDate, newPriority);
+                currentView.todo.functions.edit(newTitle, newDesc, newDate, newPriority, newTags);
+                globalTags.update(library);
 
                 setView("view-single", currentView.todo.functions.get("id"));
             })
@@ -537,8 +671,9 @@ const Controller = (library) => {
                 let newDesc = currentView.description.value;
                 let newDate = currentView.dueDate.value;
                 let newPriority = currentView.priority.value;
+                let newTags = currentView.tags.value.split(",");
 
-                library.add(Todo(newTitle, newDesc, newDate, newPriority));
+                library.add(Todo(newTitle, newDesc, newDate, undefined, undefined, undefined, newPriority, ...newTags));
                 
                 setView("view-all");
             })
@@ -558,11 +693,11 @@ const Controller = (library) => {
 
 const main = () => {
     const library = Library();
-    const todo1 = Todo("Lorem ipsum", "This is a description", "2022-08-01", undefined, undefined, undefined, undefined, "gay", "really gay")
-    const todo2 = Todo("Loborbum ibipsub", "This is a second description", "2022-09-01", undefined, undefined, undefined, undefined, "gay", "extremely gay", "woah");
+
+    const todo1 = Todo("Lorem ipsum", "This is an example todo! Edit me with the pencil icon below.", "2022-08-01", undefined, undefined, undefined, undefined, "example");
+/*     const todo2 = Todo("Loborbum ibipsub", "This is a second description", "2022-09-01", undefined, undefined, undefined, undefined, "gay", "extremely gay", "woah"); */
 
     library.add(todo1);
-    library.add(todo2);
 
     const controller = Controller(library);
     controller.setView("view-all");
