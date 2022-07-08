@@ -165,7 +165,8 @@ const Todo = (title, description = undefined,
         id,
         get,
         edit,
-        toggleCompleted
+        toggleCompleted,
+        checklist
     }
 }
 
@@ -407,7 +408,10 @@ const SingleView = (todo) => {
 
     for (let b of [completeButton, editButton, deleteButton, returnButton]) {menu.appendChild(b)};
 
-    for (let element of [title, description, priority, tags, menu, metadata]) {container.appendChild(element)};
+    const checklistContainer = document.createElement("div");
+    checklistContainer.classList.add("checklist");
+
+    for (let element of [title, description, priority, tags, menu, metadata, checklistContainer]) {container.appendChild(element)};
 
     return {
         container,
@@ -425,6 +429,7 @@ const SingleView = (todo) => {
             delete: deleteButton,
         },
         todo,
+        checklistContainer,
     };
 
 }
@@ -563,14 +568,12 @@ const AddView = () => {
 }
 
 
-const Controller = (library) => {
+const Controller = (library, anchor = document.querySelector("main")) => {
     function clear() {
-        for (let element of document.querySelectorAll("main > *")) {
+        for (let element of anchor.children) {
             element.remove();
         }
     }
-
-    const mainNode = document.querySelector("main");
 
     let currentView;
     const setView = (view, ...args) => {
@@ -612,7 +615,7 @@ const Controller = (library) => {
             if (Array.isArray(currentView.todoElements)) {
                 for (let t of currentView.todoElements) {
                     t.menu.complete.addEventListener("click", () => {
-                        t.toggleCompleted();
+                        t.todo.toggleCompleted();
                         t.menu.complete.textContent = t.todo.get("completed") ? "✅" : "✔️";
                     });
                     t.menu.view.addEventListener("click", () => {
@@ -645,7 +648,10 @@ const Controller = (library) => {
                 library.drop(t.id);
                 globalTags.update();
                 setView("view-all");
-            })
+            });
+
+            const subController = Controller(currentView.todo.checklist, currentView.checklistContainer);
+            subController.setView("view-all");
         }
 
         else if (view == "edit") {
@@ -681,11 +687,11 @@ const Controller = (library) => {
 
         else {}
 
-        mainNode.append(currentView.container);
+        anchor.append(currentView.container);
     }
 
     return {
-        anchor: mainNode,
+        anchor,
         setView
     }
 
@@ -695,8 +701,9 @@ const main = () => {
     const library = Library();
 
     const todo1 = Todo("Lorem ipsum", "This is an example todo! Edit me with the pencil icon below.", "2022-08-01", undefined, undefined, undefined, undefined, "example");
-/*     const todo2 = Todo("Loborbum ibipsub", "This is a second description", "2022-09-01", undefined, undefined, undefined, undefined, "gay", "extremely gay", "woah"); */
+    const todo2 = Todo("Loborbum ibipsub", "This is a second description", "2022-09-01", undefined, undefined, undefined, undefined, "gay", "extremely gay", "woah");
 
+    todo1.checklist.add(todo2);
     library.add(todo1);
 
     const controller = Controller(library);
